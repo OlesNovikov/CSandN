@@ -1,0 +1,11 @@
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\MessageClasses\MessageClasses\bin\Debug\MessageClasses.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\MessageClasses\MessageClasses\bin\Debug\MessageClasses.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\MessageClasses\MessageClasses\obj\Debug\MessageClasses.csproj.CoreCompileInputs.cache
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\MessageClasses\MessageClasses\obj\Debug\MessageClasses.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\MessageClasses\MessageClasses\obj\Debug\MessageClasses.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\bin\Debug\MessageClasses.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\bin\Debug\MessageClasses.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\obj\Debug\MessageClasses.csproj.CoreCompileInputs.cache
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\obj\Debug\MessageClasses.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\obj\Debug\MessageClasses.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\MessageClasses\MessageClasses\obj\Debug\MessageClasses.csprojAssemblyReference.cache
