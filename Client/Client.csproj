@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B7180CB4-112F-4A2D-B2CA-7395929A00BC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Client</RootNamespace>
+    <AssemblyName>Client</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="AllFields.cs" />
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Field.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MovesLogic.cs" />
+    <Compile Include="PlayerData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MonopolyLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Airplanes\American_airlines.bmp" />
+    <Resource Include="Images\Airplanes\British_airways.bmp" />
+    <Resource Include="Images\Airplanes\Lufthansa.bmp" />
+    <Resource Include="Images\Auto\Audi.bmp" />
+    <Resource Include="Images\Auto\Ford.bmp" />
+    <Resource Include="Images\Auto\Land_Rover.bmp" />
+    <Resource Include="Images\Auto\Mercedes.bmp" />
+    <Resource Include="Images\Clothes\Adidas.bmp" />
+    <Resource Include="Images\Clothes\Lacoste.bmp" />
+    <Resource Include="Images\Clothes\Puma.bmp" />
+    <Resource Include="Images\Coub\1.bmp" />
+    <Resource Include="Images\Coub\1_1.bmp" />
+    <Resource Include="Images\Coub\2.bmp" />
+    <Resource Include="Images\Coub\2_2.bmp" />
+    <Resource Include="Images\Coub\3.bmp" />
+    <Resource Include="Images\Coub\3_3.bmp" />
+    <Resource Include="Images\Coub\4.bmp" />
+    <Resource Include="Images\Coub\4_4.bmp" />
+    <Resource Include="Images\Coub\5.bmp" />
+    <Resource Include="Images\Coub\5_5.bmp" />
+    <Resource Include="Images\Coub\6.bmp" />
+    <Resource Include="Images\Coub\6_6.bmp" />
+    <Resource Include="Images\Drinks\Coca_Cola.bmp" />
+    <Resource Include="Images\Drinks\Fanta.bmp" />
+    <Resource Include="Images\Drinks\Pepsi.bmp" />
+    <Resource Include="Images\Electronics\Apple.bmp" />
+    <Resource Include="Images\Electronics\Nokia.bmp" />
+    <Resource Include="Images\Field parts\AddPlayer.bmp" />
+    <Resource Include="Images\Field parts\BlueProfile.bmp" />
+    <Resource Include="Images\Field parts\Chance1.bmp" />
+    <Resource Include="Images\Field parts\Chance2.bmp" />
+    <Resource Include="Images\Field parts\Chance3.bmp" />
+    <Resource Include="Images\Field parts\Chance4.bmp" />
+    <Resource Include="Images\Field parts\Diamond.bmp" />
+    <Resource Include="Images\Field parts\goToJail.bmp" />
+    <Resource Include="Images\Field parts\GreenProfile.bmp" />
+    <Resource Include="Images\Field parts\jackpot.bmp" />
+    <Resource Include="Images\Field parts\jail-visiting.bmp" />
+    <Resource Include="Images\Field parts\jail.bmp" />
+    <Resource Include="Images\Field parts\JailVisit.bmp" />
+    <Resource Include="Images\Field parts\logo_500.bmp" />
+    <Resource Include="Images\Field parts\Profile1.bmp" />
+    <Resource Include="Images\Field parts\Profile2.bmp" />
+    <Resource Include="Images\Field parts\PurpleProfile.bmp" />
+    <Resource Include="Images\Field parts\RedProfile.bmp" />
+    <Resource Include="Images\Field parts\start.bmp" />
+    <Resource Include="Images\Field parts\Tax.bmp" />
+    <Resource Include="Images\Food\BurgerKing.bmp" />
+    <Resource Include="Images\Food\KFC.bmp" />
+    <Resource Include="Images\Food\McDonalds.bmp" />
+    <Resource Include="Images\Games\RockstarGames.bmp" />
+    <Resource Include="Images\Games\Rovio.bmp" />
+    <Resource Include="Images\Hotels\HolidayInn.bmp" />
+    <Resource Include="Images\Hotels\Novotel.bmp" />
+    <Resource Include="Images\Hotels\Radisson.bmp" />
+    <Resource Include="Images\Perfumes\Chanel.bmp" />
+    <Resource Include="Images\Perfumes\Hugo_Boss.bmp" />
+    <Resource Include="Images\Social\facebook.bmp" />
+    <Resource Include="Images\Social\Twitter.bmp" />
+    <Resource Include="Images\Social\Vk.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Fields\FieldsInfo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MessageClasses\MessageClasses\MessageClasses.csproj">
+      <Project>{a005c3e2-6cba-4a96-9b03-c644d63f2b2a}</Project>
+      <Name>MessageClasses</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
