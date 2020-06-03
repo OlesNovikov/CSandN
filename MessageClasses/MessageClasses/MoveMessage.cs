@@ -10,11 +10,13 @@ namespace MessageClasses
     [Serializable]
     public class MoveMessage : Message
     {
-        public Participant currentPlayer;
+        public DateTime dateTime;
+        public int id;
 
-        public MoveMessage(IPAddress ip, Participant currentPlayer) : base (ip)
+        public MoveMessage(IPAddress ip, int id, DateTime dateTime) : base (ip)
         {
-            this.currentPlayer = currentPlayer;
+            this.dateTime = dateTime;
+            this.id = id;
         }
     }
 }

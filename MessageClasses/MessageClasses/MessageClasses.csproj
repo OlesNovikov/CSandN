@@ -42,11 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinarySerializer.cs" />
+    <Compile Include="CasinoMessage.cs" />
     <Compile Include="ClientIdMessage.cs" />
     <Compile Include="CubeMessage.cs" />
     <Compile Include="DescriptionMessage.cs" />
-    <Compile Include="HistoryRequestMessage.cs" />
-    <Compile Include="HistoryRespondMessage.cs" />
     <Compile Include="ListOfParticipantsMessage.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="CubePanelMessage.cs" />
