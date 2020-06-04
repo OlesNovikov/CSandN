@@ -27,8 +27,9 @@ namespace Client
 
         public void ReadFromFile()
         {
-            string path = @"D:\Oles\БГУИР\2 курс\4 сем\КСиС\Monopoly\Client\Client\Fields\FieldsInfo.txt";
-            using (StreamReader streamReader = new StreamReader(path, Encoding.Default))
+            string path = @"FieldsInfo.txt";
+            string fullPath = Path.GetFullPath(path);
+            using (StreamReader streamReader = new StreamReader(fullPath, Encoding.Default))
             {
                 string line;
                 while ((line = streamReader.ReadLine()) != null)
