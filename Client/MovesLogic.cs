@@ -99,7 +99,7 @@ namespace Client
             return flag;
         }
 
-        public int MovePlayer(Point finalPoint, Ellipse player)
+        public void MovePlayer(Point finalPoint, Ellipse player)
         {
             finalFieldX = (int)finalPoint.X;
             finalFieldY = (int)finalPoint.Y;
@@ -143,6 +143,26 @@ namespace Client
 
             void TopLineMove()
             {
+                if ((currentPlayer.CurrentFieldIndex == 9) && (currentPlayer.FinalFieldIndex == 21))
+                {
+                    if ((int)x != AllFields.RightLineX) MoveRight();
+                    else if ((int)y != AllFields.BottomLineY) MoveDown();
+                    else MoveLeft();
+                }
+                else if (ItIsFirstPlayerMove())
+                {
+                    if ((int)x != finalFieldX) MoveRight();
+                    else if ((int)y != finalFieldY) MoveDown();
+                    else if (fields.ListOfCoordinates[currentPlayer.FinalFieldIndex] == fields.JailField)
+                    {
+                        if (y > finalFieldY) MoveUp();
+                        else MoveDown();
+                    }
+                }
+                else if ((int)x != finalFieldX) MoveRight();
+                else if (fields.ListOfCoordinates[currentPlayer.FinalFieldIndex] == fields.JailField) MoveUp();
+                else if ((int)y != finalFieldY) MoveDown();
+                /*
                 MoveRight();
                 if (ItIsFirstPlayerMove() && (x == finalFieldX)) MoveDown();
                 else if (fields.ListOfCoordinates[currentPlayer.FinalFieldIndex] == fields.JailField) MoveUp();
@@ -152,6 +172,7 @@ namespace Client
                     if (y == finalFieldY) MoveLeft();
                 }
                 else if (x == finalFieldX) MoveDown();
+                */
             }
 
             void RightLineMove()
@@ -284,9 +305,9 @@ namespace Client
                         currentPlayer.CurrentFieldIndex = currentPlayer.FinalFieldIndex;
                         currentPlayer.FinalFieldIndex = JAIL; 
                         if (currentIndex == 0) MovePlayer(fields.PrisonField, mainWindow.player1Chip);
-                        else if (currentIndex == 1) currentIndex = MovePlayer(fields.PrisonField, mainWindow.player2Chip);
-                        else if (currentIndex == 2) currentIndex = MovePlayer(fields.PrisonField, mainWindow.player3Chip);
-                        else currentIndex = MovePlayer(fields.PrisonField, mainWindow.player4Chip);
+                        else if (currentIndex == 1) MovePlayer(fields.PrisonField, mainWindow.player2Chip);
+                        else if (currentIndex == 2) MovePlayer(fields.PrisonField, mainWindow.player3Chip);
+                        else MovePlayer(fields.PrisonField, mainWindow.player4Chip);
                     }
                     if (client.Index == currentPlayer.id)
                     {
@@ -299,12 +320,8 @@ namespace Client
                                     message = currentPlayer.name + " попадает на своё поле";
                                     client.SendDescriptionMessage(message);
 
-                                    if (client.Index == currentPlayer.id)
-                                    {
-                                        if (mainWindow.NoMovesLeft()) mainWindow.NextPlayer();
-                                        else mainWindow.ShowThrowCubesPanel();
-                                        //mainWindow.ThrowCubesPanel.Visibility = Visibility.Visible;
-                                    }
+                                    if (mainWindow.NoMovesLeft()) mainWindow.NextPlayer();
+                                    else if (client.Index == currentPlayer.id) mainWindow.ShowThrowCubesPanel();
                                 }
                                 else
                                 {
@@ -350,42 +367,31 @@ namespace Client
                         }
                         else if (ChanceField())
                         {
+                            Random random = new Random();
+                            int value = random.Next(0, 2);
+                            int valueNumber = random.Next(500, 2501);
 
-                                Random random = new Random();
-                                int value = random.Next(0, 2);
-                                int valueNumber = random.Next(500, 2501);
+                            message = currentPlayer.name + " попадает на поле \"Шанс\". ";
 
-                                message = currentPlayer.name + " попадает на поле \"Шанс\". ";
+                            if (value == 0)
+                            {
+                                message += currentPlayer.name + " должен оплатить расходы на образование в размере " + valueNumber.ToString() + "k";
+                                client.SendDescriptionMessage(message);
 
-                                if (value == 0)
-                                {
-                                    message += currentPlayer.name + " должен оплатить расходы на образование в размере " + valueNumber.ToString() + "k";
-                                    client.SendDescriptionMessage(message);
+                                int playerMoney = currentPlayer.Money;
+                                if ((playerMoney -= ListOfFields[currentPlayer.FinalFieldIndex].Price) >= 0) mainWindow.PayFieldButton.IsEnabled = true;
+                                else mainWindow.PayFieldButton.IsEnabled = false;
+                                ShowChancePanel(valueNumber);
+                            }
+                            else
+                            {
+                                currentPlayer.Money += valueNumber;
 
-                                    int playerMoney = currentPlayer.Money;
-                                    if ((playerMoney -= ListOfFields[currentPlayer.FinalFieldIndex].Price) >= 0) mainWindow.PayFieldButton.IsEnabled = true;
-                                    else mainWindow.PayFieldButton.IsEnabled = false;
-                                    ShowChancePanel(valueNumber);
-                                }
-                                else
-                                {
-                                    currentPlayer.Money += valueNumber;
+                                message += "Банк выплачивает игроку " + currentPlayer.name + " дивиденды на сумму в " + valueNumber.ToString() + "k";
+                                client.SendDescriptionMessage(message);
 
-                                    message += "Банк выплачивает игроку " + currentPlayer.name + " дивиденды на сумму в " + valueNumber.ToString() + "k";
-                                    client.SendDescriptionMessage(message);
-
-                                    mainWindow.SendMoneyMessage();
-                                    /*
-                                    StackPanel panel = (StackPanel)mainWindow.AllPlayersProfiles.Children[currentIndex % 4];
-                                    ((TextBlock)panel.Children[2]).Text = currentPlayer.Money.ToString() + "k";
-
-                                    if (currentPlayer.movesLeft == 0)
-                                    {
-                                        currentIndex++;
-                                        currentPlayer = ListOfPlayers[currentIndex % 4];
-                                    }
-                                    mainWindow.ThrowCubesPanel.Visibility = Visibility.Visible;*/
-                                }
+                                mainWindow.SendMoneyMessage();
+                            }
                         }
                         else if (JailField())
                         {
@@ -394,13 +400,6 @@ namespace Client
 
                             if (mainWindow.NoMovesLeft()) mainWindow.NextPlayer();
                             else if (client.Index == currentPlayer.id) ShowTrowCubesPanel();
-                            /*
-                            if (currentPlayer.movesLeft == 0)
-                            {
-                                currentIndex++;
-                                currentPlayer = ListOfPlayers[currentIndex % 4];
-                            }
-                            mainWindow.ThrowCubesPanel.Visibility = Visibility.Visible;*/
                         }
                         else if (PayTaxes())
                         {
@@ -431,31 +430,23 @@ namespace Client
                                 currentPlayer.FinalFieldIndex = 10;
                                 currentPlayer.CurrentFieldIndex = 10;
                             }
-                            /*
-                            currentIndex++;
-                            currentPlayer = ListOfPlayers[currentIndex % 4];
-
-                            mainWindow.ThrowCubesPanel.Visibility = Visibility.Visible;*/
                         }
-                        else if ((currentPlayer.CurrentFieldIndex <= 39) && (currentPlayer.CurrentFieldIndex != PRISON) && (currentPlayer.CurrentFieldIndex >= 19) && (currentPlayer.FinalFieldIndex >= 0) && ((currentPlayer.FinalFieldIndex <= 11)) && (!ItIsFirstPlayerMove()))
+                        else if ((currentPlayer.CurrentFieldIndex <= 39) && (currentPlayer.CurrentFieldIndex != PRISON) 
+                            && (currentPlayer.CurrentFieldIndex >= 19) && (currentPlayer.FinalFieldIndex >= 0) 
+                            && ((currentPlayer.FinalFieldIndex <= 11)) && (!ItIsFirstPlayerMove()))
                         {
                             int LapBonus = 2000;
                             int startBonus = 1000;
-                            message = currentPlayer.name + " проходит очередной круг и получает " + LapBonus + "k";
-                            client.SendDescriptionMessage(message);
 
                             currentPlayer.Money += LapBonus;
+                            message = currentPlayer.name + " проходит очередной круг и получает " + LapBonus + "k";
 
                             if (currentPlayer.FinalFieldIndex == 0)
                             {
-                                message = currentPlayer.name + " останавливается на поле \"Старт\" и получает бонус в размере" + startBonus.ToString() + "k";
-                                client.SendDescriptionMessage(message);
-
                                 currentPlayer.Money += startBonus;
-
-                                //if (mainWindow.NoMovesLeft()) mainWindow.NextPlayer();
-                                ShowTrowCubesPanel();
+                                message += ". " + currentPlayer.name + " останавливается на поле \"Старт\" и получает бонус в размере" + startBonus.ToString() + "k";
                             }
+                            client.SendDescriptionMessage(message);
                             mainWindow.SendMoneyMessage();
                         }
                     }
@@ -465,7 +456,6 @@ namespace Client
                 else if (PlayerOnBottomLine()) BottomLineMove();
                 else if (PlayerOnLeftLine()) LeftLineMove(); 
             }
-            return currentIndex;
         }
     }
 }
