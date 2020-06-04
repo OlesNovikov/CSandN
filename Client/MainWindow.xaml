@@ -11,8 +11,9 @@
         Title="Монополия" Height="800" Width="1000" MinHeight="400" MinWidth="500">
 
     <Grid Name="mainGrid" Loaded="MainWindowLoaded">
-        <Viewbox MaxHeight="800" MaxWidth="1000" MinHeight="400" MinWidth="500">
-            <Canvas Name="CanvasMap" Width="1027" Height="800" Margin="0,0,0,0" Visibility="Visible">
+        <Label Name="WinLabel" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="180" Content="YOU WIN!" Foreground="White" Visibility="Hidden"/>
+            <Viewbox MaxHeight="800" MaxWidth="1000" MinHeight="400" MinWidth="500">
+            <Canvas Name="CanvasMap" Width="1027" Height="800" Margin="0,0,0,0" Visibility="Hidden">
                 <TextBox x:Name="txtChat" TextWrapping="Wrap" AcceptsReturn="true" VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Bottom" Canvas.Left="394" Canvas.Top="174" Width="458" Height="438" Background="Transparent" Foreground="White" IsReadOnly="true"/>
                 <Image x:Name="Start" Height="100" Canvas.Left="293" Canvas.Top="73" Width="100" Source="Images\Field Parts\start.bmp"/>
                 <Image x:Name="ChanelLogo" Height="100" Canvas.Left="394" Canvas.Top="73" Width="50" Source="Images\Perfumes\Chanel.bmp"/>
@@ -231,9 +232,13 @@
             </Canvas>
         </Viewbox>
         <Border Name="RegistartionPanelBorder" CornerRadius="15" Background="LightGray" Width="300" Height="425" Visibility="Visible" MinHeight="212" MinWidth="150">
-            <StackPanel Name="RegistrationPanel" Width="300" Height="150" Margin="0,224,0,51">
-                <TextBox x:Name="RegistrationTextBox" Width="150" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="75,50"/>
-                <Button x:Name="ConnectButton" Content="Подключиться" Height="25" Width="90" Click="ConnectButton_Click" Margin="105,0"/>
+            <StackPanel Name="RegistrationPanel" Width="300" Height="350" Margin="0,100,0,0">
+                <Image Width="100" Height="100" Margin="-10,0" Source="Images/Field parts/Profile2.bmp"/>
+                <RadioButton Name="LocalIpRadioButton" Content="в локальной сети" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 10"/>
+                <RadioButton Name="ServerIpRadioButton" Content="знаю ip сервера" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0"/>
+                <TextBox x:Name="NicknameTextBox" Width="150" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="75,30" MouseEnter="NicknameTextBox_Enter" MouseLeave="NicknameTextBox_Leave"/>
+                <TextBox x:Name="ServerIpTextBox" Width="150" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="75,-10" MouseEnter="ServerIpTextBox_Enter" MouseLeave="ServerIpTextBox_Leave"/>
+                <Button x:Name="ConnectButton" Content="Подключиться" Height="25" Width="90" Click="ConnectButton_Click" Margin="105,40"/>
             </StackPanel>
         </Border>
     </Grid>

@@ -1,6 +1,7 @@
 ﻿using MessageClasses;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,34 +14,95 @@ namespace Client
         MovesLogic logic;
         PlayerData player;
         Participant currentPlayer;
-        Random value = new Random();
         int currentIndex = 0;
-        //int RandomNumber;
-        //Cube cube = new Cube();
         public AllFields fields;
         public List<Participant> ListOfPlayers = new List<Participant>();
         public StackPanel Profile;
 
-        string TextBoxHint = "Enter message";
-        string whiteColor = "#ffffff";
+        const string TextBoxHint = "Enter message";
+        const string NicknameHint = "Nickname";
+        const string ServerIpHint = "Server ip";
+        const string whiteColor = "#ffffff";
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        public void InitializeFields()
+//------bool methods-----------------------------------------------------------------------------------------------------------------
+
+        private bool FieldOnTopOrBottom(int index)
         {
-            fields = new AllFields();
-            for (int index = 0; index < fields.ListOfFields.Count; index++)
-            {
-                if (fields.ListOfFields[index].Price != 0)
-                {
-                    if ((index < 10) || ((index > 20) && (index < 30))) ((TextBlock)FindName(fields.ListOfFields[index].Name)).Text = fields.ListOfFields[index].Price.ToString() + "k";
-                    else ((TabItem)FindName(fields.ListOfFields[index].Name)).Header = "  " + fields.ListOfFields[index].Price.ToString() + "k";
-                }
-            }
+            if ((index < 10) || ((index > 20) && (index < 30))) return true;
+            else return false;
         }
+
+        private bool InCasino()
+        {
+            int casino = 20;
+            if (currentPlayer.FinalFieldIndex == casino) return true;
+            else return false;
+        }
+
+        private bool OneOfRadioButtonIsChecked()
+        {
+            if (((bool)one.IsChecked) || ((bool)two.IsChecked) || ((bool)three.IsChecked)
+                || ((bool)four.IsChecked) || ((bool)five.IsChecked) || ((bool)six.IsChecked))
+            {
+                return true;
+            }
+            else return false;
+        }
+
+        public bool NoMovesLeft()
+        {
+            if (currentPlayer.movesLeft <= 0)
+            {
+                return true;
+            }
+            else return false;
+        }
+
+        private bool PayTaxes()
+        {
+            const int TAX = 4;
+            const int LUXURY_TAX = 36;
+
+            if ((currentPlayer.FinalFieldIndex == TAX) || (currentPlayer.FinalFieldIndex == LUXURY_TAX)) return true;
+            else return false;
+        }
+
+        private bool PayRent()
+        {
+            Field currentField = fields.ListOfFields[currentPlayer.FinalFieldIndex];
+            if ((currentField.OwnerColor != currentPlayer.Color) && (currentField.OwnerColor != whiteColor)) return true;
+            else return false;
+        }
+
+        private bool OnChanceField()
+        {
+            List<int> chanceFieldIndex = new List<int>() { 2, 7, 17, 22, 33, 38 };
+            foreach (var field in chanceFieldIndex)
+            {
+                if (currentPlayer.FinalFieldIndex == field) return true;
+            }
+            return false;
+        }
+
+        private bool PlayerOnTopOrBottomLine()
+        {
+            if ((currentPlayer.FinalFieldIndex < 10)
+            || ((currentPlayer.FinalFieldIndex > 20) && (currentPlayer.FinalFieldIndex < 30))) return true;
+            else return false;
+        }
+
+        private bool StartField()
+        {
+            if (currentPlayer.FinalFieldIndex == 0) return true;
+            else return false;
+        }
+
+//------Visualization methods--------------------------------------------------------------------------------------------------------
 
         private void HideChips()
         {
@@ -50,27 +112,330 @@ namespace Client
             player4Chip.Visibility = Visibility.Hidden;
         }
 
+        private void HideThrowCubesPanel()
+        {
+            ThrowCubesPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void HideCasinoPanel()
+        {
+            CasinoPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void HideBuyFieldPanel()
+        {
+            BuyFieldPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void HidePayFieldPanel()
+        {
+            PayFieldPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void UncheckRadioButtons()
+        {
+            one.IsChecked = false;
+            two.IsChecked = false;
+            three.IsChecked = false;
+            four.IsChecked = false;
+            five.IsChecked = false;
+            six.IsChecked = false;
+        }
+
+        private SolidColorBrush BrushFromHex(string hexColorString)
+        {
+            return (SolidColorBrush)(new BrushConverter().ConvertFrom(hexColorString));
+        }
+
+        private void ShowMessageTextBoxHint()
+        {
+            string hintColor = "#656d78";
+            MessageTextBox.Text = TextBoxHint;
+            MessageTextBox.Foreground = BrushFromHex(hintColor);
+        }
+
+        private BitmapImage ImageSource(int randNumber)
+        {
+            string CubeSource = randNumber.ToString() + ".bmp";
+
+            BitmapImage myCubeImage = new BitmapImage();
+            myCubeImage.BeginInit();
+            myCubeImage.UriSource = new Uri(@"Images/Coub/" + CubeSource, UriKind.RelativeOrAbsolute);
+            myCubeImage.EndInit();
+            return myCubeImage;
+        }
+
+        //------Initialization methods-------------------------------------------------------------------------------------------------------
+
+        private void InitializeFields()
+        {
+            fields = new AllFields();
+            for (int index = 0; index < fields.ListOfFields.Count; index++)
+            {
+                Field field = fields.ListOfFields[index];
+                if (field.Price != 0)
+                {
+                    if (FieldOnTopOrBottom(index)) ((TextBlock)FindName(field.Name)).Text = field.Price.ToString() + "k";
+                    else ((TabItem)FindName(field.Name)).Header = "  " + field.Price.ToString() + "k";
+                }
+            }
+        }
+
+        private void AddEventsToPlayer()
+        {
+            player.ListOfParticipantsReceivedEvent += ShowAllProfiles;
+            player.StartGameMessageReceivedEvent += ShowThrowCubesPanel;
+            player.PublicMessageReceivedEvent += ReceivePublicMessage;
+            player.DescriptionMessageReceivedEvent += ReceiveDescriptionMessage;
+            player.CubeMessageReceivedEvent += ShowCubesAndMove;
+            player.MoneyMessageReceivedEvent += UpdateMoney;
+            player.MoveMessageReceivedEvent += SetupCurrentPlayer;
+            player.CasinoMessageReceivedEvent += HandleCasinoEvent;
+            player.DisconnectMessageReceivedEvent += RedrawFieldsAndPlayers;
+        }
+
+        private void InitializeNewPlayer()
+        {
+            player.Name = NicknameTextBox.Text;
+            player.Money = 15000;
+            player.CurrentFieldIndex = 0;
+            player.FinalFieldIndex = 0;
+            player.movesLeft = 1;
+        }
+
+//------Main Window methods----------------------------------------------------------------------------------------------------------
+
         private void MainWindowLoaded(object sender, RoutedEventArgs e)
         {
             player = new PlayerData(this);
+            AddEventsToPlayer();
             player.SendUdpRequest();
-
-            player.ListOfParticipantsReceivedEvent += ShowAllPlayerProfiles;
-            player.StartGameMessageReceivedEvent += ShowThrowCubesPanel;
-            player.PublicMessageReceivedEvent += ReceivePublicMessage;
-            player.DescriptionMessageReceivedEvent += ReceiveMoveDescriptionMessage;
-            player.CubeMessageReceivedEvent += ShowCubesAndMove;
-            player.MoneyMessageReceivedEvent += UpdateAllPlayersMoney;
-            player.MoveMessageReceivedEvent += SetupNextPlayer;
-            player.CasinoMessageReceivedEvent += HandleCasinoEvent;
-            player.DisconnectMessageReceivedEvent += RedrawFieldsAndPlayers;
 
             InitializeFields();
             HideChips();
             MessageTextBox.Text = TextBoxHint;
+            NicknameTextBox.Text = NicknameHint;
+            ServerIpTextBox.Text = ServerIpHint;
         }
 
-        public void RedrawFieldsAndPlayers(DisconnectMessage message)
+        private void MainWindowClosed(object sender, EventArgs e)
+        {
+            if (player.tcpListenSocket != null)
+            {
+                int removeIndex = 0;
+                for (int i = 0; i < player.ListOfParticipants.Count; i++)
+                {
+                    if (player.ListOfParticipants[i].id == player.Index)
+                    {
+                        removeIndex = i;
+                    }
+                }
+                if ((player.ListOfParticipants.Count > 0) && (currentPlayer != null))
+                {
+                    player.ListOfParticipants.RemoveAt(removeIndex);
+                    DisconnectMessage disconnectMessage = new DisconnectMessage(player.clientIp, player.ListOfParticipants, player.Index, player.Color, currentPlayer.id);
+                    player.SendDisconnectMessage(disconnectMessage);
+                }
+                player.DisconnectClient();
+            }
+        }
+
+        private void NicknameTextBox_Enter(object sender, RoutedEventArgs e)
+        {
+            if ((NicknameTextBox.Text.Length == 0) || (NicknameTextBox.Text == NicknameHint))
+            {
+                NicknameTextBox.Text = null;
+            }
+        }
+
+        private void MessageTextBox_Enter(object sender, RoutedEventArgs e)
+        {
+            if ((MessageTextBox.Text.Length == 0) || (MessageTextBox.Text == TextBoxHint))
+            {
+                MessageTextBox.Text = null;
+                MessageTextBox.Foreground = BrushFromHex(whiteColor);
+            }
+        }
+
+        private void ServerIpTextBox_Enter(object sender, RoutedEventArgs e)
+        {
+            if ((ServerIpTextBox.Text.Length == 0) || (ServerIpTextBox.Text == ServerIpHint))
+            {
+                ServerIpTextBox.Text = null;
+            }
+        }
+
+        private void NicknameTextBox_Leave(object sender, RoutedEventArgs e)
+        {
+            if (NicknameTextBox.Text.Length == 0)
+            {
+                NicknameTextBox.Text = NicknameHint;
+            }
+        }
+
+        private void MessageTextBox_Leave(object sender, RoutedEventArgs e)
+        {
+            if (MessageTextBox.Text.Length == 0)
+            {
+                ShowMessageTextBoxHint();
+            }
+        }
+
+        private void ServerIpTextBox_Leave(object sender, RoutedEventArgs e)
+        {
+            if (ServerIpTextBox.Text.Length == 0)
+            {
+                ServerIpTextBox.Text = ServerIpHint;
+            }
+        }
+
+        private void SendMessage_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageTextBox.Text != TextBoxHint)
+            {
+                string message = MessageTextBox.Text;
+                player.SendPublicMessage(message);
+                ShowMessageTextBoxHint();
+            }
+        }
+
+        private void ConnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            logic = new MovesLogic(this);
+            InitializeNewPlayer();
+            if ((bool)ServerIpRadioButton.IsChecked)
+            {
+                player.serverIpPort.Address = IPAddress.Parse(ServerIpTextBox.Text);
+                ConnectButton.IsEnabled = false;
+                if (player.Name != null) player.SendTcpRequest();
+            }
+            else if ((bool)LocalIpRadioButton.IsChecked)
+            {
+                ConnectButton.IsEnabled = false;
+                if (player.Name != null) player.SendTcpRequest();
+            }
+            else MessageBox.Show("Выберите способ подключения");
+        }
+
+        private void BuyFieldButton_Click(object sender, RoutedEventArgs e)
+        {
+            Field fieldToBuy = fields.ListOfFields[currentPlayer.FinalFieldIndex];
+            string message = "";
+            string componentName = fieldToBuy.Name;
+
+            message = player.ListOfParticipants[currentPlayer.id].name + " покупает " + componentName + " за " + fieldToBuy.Price.ToString() + "k";
+            player.SendDescriptionMessage(message);
+
+            currentPlayer.Money -= fieldToBuy.Price;
+
+            HideBuyFieldPanel();
+            SendMoneyMessage();
+        }
+
+        private void PayFieldButton_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "";
+            int moneyToPay = 0;
+            Field currentField = fields.ListOfFields[currentPlayer.FinalFieldIndex];
+
+            moneyToPay = currentField.CurrentRent;
+
+            currentPlayer.Money -= moneyToPay;
+
+            if (!PayTaxes() && !OnChanceField() && PayRent()) PayToAnotherPlayer(moneyToPay, currentField);
+
+            message = currentPlayer.name + " оплачивает расходы";
+            player.SendDescriptionMessage(message);
+
+            HidePayFieldPanel();
+            SendMoneyMessage();
+        }
+
+        private void ThrowCubesButton_Click(object sender, RoutedEventArgs e)
+
+        {
+            currentPlayer = player.ListOfParticipants[currentIndex];
+
+            if (currentIndex == 0)
+            {
+                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player1Chip);
+                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player1Chip);
+            }
+            else if (currentIndex == 1)
+            {
+                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player2Chip);
+                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player2Chip);
+            }
+            else if (currentIndex == 2)
+            {
+                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player3Chip);
+                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player3Chip);
+            }
+            else
+            {
+                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player4Chip);
+                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player4Chip);
+            }
+
+            CubeMessage cubeMessage = new CubeMessage(player.clientIp, currentPlayer.id, currentPlayer.LeftCube, currentPlayer.RightCube);
+            player.SendCubeMessage(cubeMessage);
+        }
+
+        private void RefuseButton_Click(object sender, RoutedEventArgs e)
+        {
+            HideBuyFieldPanel();
+            if (currentPlayer.movesLeft == 0) NextPlayer();
+            else if (currentPlayer.id == player.Index) ShowThrowCubesPanel();
+        }
+
+        private void GiveUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (player.tcpListenSocket != null)
+            {
+                int removeIndex = 0;
+                for (int i = 0; i < player.ListOfParticipants.Count; i++)
+                {
+                    if (player.ListOfParticipants[i].id == player.Index)
+                    {
+                        removeIndex = i;
+                    }
+                }
+                if ((player.ListOfParticipants.Count > 0) && (currentPlayer != null))
+                {
+                    player.ListOfParticipants.RemoveAt(removeIndex);
+                    DisconnectMessage disconnectMessage = new DisconnectMessage(player.clientIp, player.ListOfParticipants, player.Index, player.Color, currentPlayer.id);
+                    player.SendDisconnectMessage(disconnectMessage);
+                }
+                player.DisconnectClient();
+            }
+        }
+
+        private void CasinoPlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (OneOfRadioButtonIsChecked())
+            {
+                const int PRICE = 1000;
+                string message = "";
+
+                int value = CheckedRadioButtonNumber();
+                message = player.ListOfParticipants[currentPlayer.id].name + " ставит " + PRICE.ToString() + "k на число " + value.ToString() + " и бросает кубик...";
+                player.SendDescriptionMessage(message);
+                CasinoMessage casinoMessage = new CasinoMessage(player.clientIp, currentPlayer.LeftCube);
+                player.SendCasinoMessage(casinoMessage);
+            }
+            else MessageBox.Show("Выберите значение, на которое хотите поставить");
+        }
+
+        private void RefuseToPlayCasino_Click(object sender, RoutedEventArgs e)
+        {
+            HideCasinoPanel();
+            if (currentPlayer.movesLeft == 0) NextPlayer();
+            else if (currentPlayer.id == player.Index) ShowThrowCubesPanel();
+        }
+
+//------Received messages delegates--------------------------------------------------------------------------------------------------
+
+        private void RedrawFieldsAndPlayers(DisconnectMessage message)
         {
             Action redraw = delegate
             {
@@ -89,7 +454,7 @@ namespace Client
                         if (field.OwnerColor == message.Color)
                         {
                             fields.ListOfFields[i].OwnerColor = whiteColor;
-                            if ((i < 10) || ((i > 20) && (i < 30)))
+                            if (FieldOnTopOrBottom(i))
                             {
                                 ((TextBlock)FindName(fields.ListOfFields[i].Name)).Text = fields.ListOfFields[i].Price.ToString() + "k";
                                 ((TextBlock)FindName(fields.ListOfFields[i].Name)).Background = BrushFromHex(whiteColor);
@@ -102,43 +467,58 @@ namespace Client
                         }
                     }
                 }
-                if (message.id == message.currentPlayerId)
+
+                if (message.ListOfParticipants.Count == 1)
                 {
-                    if (message.id == player.ListOfParticipants.Count)
-                    {
-                        currentIndex = 0;
-                        currentPlayer = player.ListOfParticipants[currentIndex];
-                    }
+                    WinLabel.Visibility = Visibility.Visible;
+                    CanvasMap.Visibility = Visibility.Hidden;
                 }
                 else
                 {
-                    for (int i = 0; i < player.ListOfParticipants.Count; i++)
+                    if (message.id == message.currentPlayerId)
                     {
-                        if (message.currentPlayerId == player.ListOfParticipants[i].id)
+                        if (message.id == player.ListOfParticipants.Count)
                         {
-                            currentPlayer = player.ListOfParticipants[i];
-                            currentIndex = i;
+                            currentIndex = 0;
+                            currentPlayer = player.ListOfParticipants[currentIndex];
+                        }
+                        else
+                        {
+                            currentIndex = message.currentPlayerId;
+                            currentPlayer = player.ListOfParticipants[currentIndex];
                         }
                     }
+                    else
+                    {
+                        for (int i = 0; i < player.ListOfParticipants.Count; i++)
+                        {
+                            if (message.currentPlayerId == player.ListOfParticipants[i].id)
+                            {
+                                currentPlayer = player.ListOfParticipants[i];
+                                currentIndex = i;
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < AllPlayersProfiles.Children.Count; i++)
+                {
+                    var stackPanel = (StackPanel)AllPlayersProfiles.Children[i];
+                    stackPanel.Background = BrushFromHex("#161a1b");
+                }
+
+                StackPanel panel = (StackPanel)AllPlayersProfiles.Children[currentPlayer.id];
+                panel.Background = BrushFromHex(currentPlayer.Color);
+                if (message.currentPlayerId == player.Index)
+                {
+                    ShowThrowCubesPanel();
                 }
             };
 
             player1Chip.Dispatcher.Invoke(redraw);
         }
 
-        private void MainWindowClosed(object sender, EventArgs e)
-        {
-            if (player.tcpListenSocket != null)
-            {
-                player.ListOfParticipants.RemoveAt(player.Index);
-
-                DisconnectMessage disconnectMessage = new DisconnectMessage(player.clientIp, player.ListOfParticipants, player.Index, player.Color, currentPlayer.id);
-                player.SendDisconnectMessage(disconnectMessage);
-                player.DisconnectClient();
-            }
-        }
-
-        public void ShowAllPlayerProfiles()
+        private void ShowAllProfiles()
         {
             Action showProfiles = delegate
             {
@@ -147,7 +527,7 @@ namespace Client
                 {
                     if (player.Index == participant.id) player.Color = participant.id.ToString();
                     if (participant.id == 0) Profile = new StackPanel { Name = "Player" + participant.id.ToString(), Width = 160, Height = 120, Margin = new Thickness(0, 0, 0, 0), Background = BrushFromHex("#161a1b") };
-                    else Profile = new StackPanel { Name = "Player" + participant.id.ToString(), Width = 160, Height = 120, Margin = new Thickness(0, 30, 0, 0), Background  = BrushFromHex("#161a1b") };
+                    else Profile = new StackPanel { Name = "Player" + participant.id.ToString(), Width = 160, Height = 120, Margin = new Thickness(0, 30, 0, 0), Background = BrushFromHex("#161a1b") };
 
                     BitmapImage profileImage = new BitmapImage();
                     profileImage.BeginInit();
@@ -190,7 +570,7 @@ namespace Client
             ThrowCubesPanel.Dispatcher.Invoke(showCubesPanel);
         }
 
-        public void SetupNextPlayer(MoveMessage message)
+        private void SetupCurrentPlayer(MoveMessage message)
         {
             Action next = delegate
             {
@@ -212,36 +592,16 @@ namespace Client
 
                 StackPanel panel = (StackPanel)AllPlayersProfiles.Children[currentPlayer.id];
                 panel.Background = BrushFromHex(currentPlayer.Color);
-                //if (currentPlayer.movesLeft == 0) currentPlayer.movesLeft++;
-                //MessageBox.Show(currentPlayer.name);
                 if (message.id == player.Index)
                 {
                     ShowThrowCubesPanel();
                 }
-                //MessageBox.Show("Client id: " + player.Index.ToString() + " message id: " + message.id.ToString()); 
             };
 
             ThrowCubesPanel.Dispatcher.Invoke(next);
-            /*
-            if (currentPlayer.movesLeft == 0) currentPlayer.movesLeft++;
-            currentIndex++;
-            currentIndex %= 4;
-            currentPlayer = player.ListOfParticipants[currentIndex];*/
         }
 
-        public void ReceivePublicMessage(PublicMessage publicMessage)
-        {
-            string message = publicMessage.senderName + ": " + publicMessage.data;
-            ShowPublicMessage(message);
-        }
-
-        public void ReceiveMoveDescriptionMessage(DescriptionMessage descriptionMessage)
-        {
-            string message = descriptionMessage.data;
-            ShowPublicMessage(message);
-        }
-
-        public void ShowPublicMessage(string message)
+        private void ShowPublicMessage(string message)
         {
             Action showMessage = delegate
             {
@@ -251,7 +611,7 @@ namespace Client
             txtChat.Dispatcher.Invoke(showMessage);
         }
 
-        public void ShowCubesAndMove()
+        private void ShowCubesAndMove()
         {
             int cubeSum = 0;
 
@@ -272,25 +632,21 @@ namespace Client
                 currentPlayer.RightCube = player.RightCube;
                 cubeSum = currentPlayer.LeftCube + currentPlayer.RightCube;
 
-                if (player.Index == currentPlayer.id)
-                {
-                    message = currentPlayer.name + " выбрасывает " + currentPlayer.LeftCube.ToString() + ":" + currentPlayer.RightCube.ToString();
-                    player.SendDescriptionMessage(message);
-                }
-                
-                currentPlayer.movesLeft--;
+                message = currentPlayer.name + " выбрасывает " + currentPlayer.LeftCube.ToString() + ":" + currentPlayer.RightCube.ToString();
 
-                //MessageBox.Show(currentPlayer.name + " id: " + currentPlayer.id.ToString() + player.Index.ToString());
+                currentPlayer.movesLeft--;
 
                 if (currentPlayer.RightCube == currentPlayer.LeftCube)
                 {
                     if (player.Index == currentPlayer.id)
                     {
-                        message = currentPlayer.name + " выбрасывает " + currentPlayer.LeftCube.ToString() + ":" + currentPlayer.RightCube.ToString() + " и получает ещё один ход, так как выпал дубль";
-                        player.SendDescriptionMessage(message);
+                        message += ". " + currentPlayer.name + " выбрасывает " + currentPlayer.LeftCube.ToString() + ":" + currentPlayer.RightCube.ToString() + " и получает ещё один ход, так как выпал дубль";
                     }
                     currentPlayer.movesLeft++;
-                    //player.ListOfParticipants[currentPlayer.id].movesLeft++;
+                }
+                if (player.Index == currentPlayer.id)
+                {
+                    player.SendDescriptionMessage(message);
                 }
 
                 currentPlayer.CurrentFieldIndex = currentPlayer.FinalFieldIndex;
@@ -301,15 +657,15 @@ namespace Client
 
                 Point MovePlayerTo = fields.ListOfCoordinates[currentPlayer.FinalFieldIndex];
 
-                if (currentIndex == 0) currentIndex = logic.MovePlayer(MovePlayerTo, player1Chip);
-                else if (currentIndex == 1) currentIndex = logic.MovePlayer(MovePlayerTo, player2Chip);
-                else if (currentIndex == 2) currentIndex = logic.MovePlayer(MovePlayerTo, player3Chip);
-                else currentIndex = logic.MovePlayer(MovePlayerTo, player4Chip);
+                if (currentIndex == 0) logic.MovePlayer(MovePlayerTo, player1Chip);
+                else if (currentIndex == 1) logic.MovePlayer(MovePlayerTo, player2Chip);
+                else if (currentIndex == 2) logic.MovePlayer(MovePlayerTo, player3Chip);
+                else logic.MovePlayer(MovePlayerTo, player4Chip);
             };
             Dispatcher.Invoke(showCubes);
         }
 
-        public void UpdateAllPlayersMoney()
+        private void UpdateMoney()
         {
             Field fieldToBuy = fields.ListOfFields[currentPlayer.FinalFieldIndex];
             string componentName = fieldToBuy.Name;
@@ -322,7 +678,7 @@ namespace Client
                     ((TextBlock)panel.Children[2]).Text = participant.Money.ToString() + "k";
                 }
 
-                if (!PayToBank() && !ChanceField() && !PayRent() && !Casino()) ProcessPurchase(componentName, fieldToBuy);
+                if (!PayTaxes() && !OnChanceField() && !PayRent() && !InCasino() && !StartField()) ProcessPurchase(componentName, fieldToBuy);
 
                 if (player.Index == currentPlayer.id)
                 {
@@ -331,372 +687,6 @@ namespace Client
                 }
             };
             AllPlayersProfiles.Dispatcher.Invoke(updateMoney);
-        }
-
-        public bool Casino()
-        {
-            if (currentPlayer.FinalFieldIndex == 20) return true;
-            else return false;
-        }
-
-        public void ProcessPurchase(string componentName, Field fieldToBuy)
-        {
-            string fieldRent = fieldToBuy.CurrentRent.ToString();
-            fieldToBuy.OwnerColor = currentPlayer.Color;
-            if (PlayerOnTopOrBottomLine())
-            {
-                ((TextBlock)FindName(componentName)).Background = BrushFromHex(currentPlayer.Color);
-
-                if (currentPlayer.FinalFieldIndex != 28) ((TextBlock)FindName(componentName)).Text = fieldRent + "k";
-                else ((TextBlock)FindName(componentName)).Text = fieldRent + "x";
-            }
-            else
-            {
-                ((TabItem)FindName(componentName)).Background = BrushFromHex(currentPlayer.Color);
-
-                if (currentPlayer.FinalFieldIndex != 12) ((TabItem)FindName(componentName)).Header = "  " + fieldRent + "k";
-                else ((TabItem)FindName(componentName)).Header = "  " + fieldRent + "x";
-            }
-        }
-
-        public void HideThrowCubesPanel()
-        {
-            ThrowCubesPanel.Visibility = Visibility.Hidden;
-        }
-
-        public SolidColorBrush BrushFromHex(string hexColorString) 
-        {
-            return (SolidColorBrush)(new BrushConverter().ConvertFrom(hexColorString));
-        }
-
-        public void ShowMessageTextBoxHint()
-        {
-            MessageTextBox.Text = TextBoxHint;
-            MessageTextBox.Foreground = BrushFromHex("#656d78");
-        }
-
-        private void MessageTextBox_Enter(object sender, RoutedEventArgs e)
-        {
-            if ((MessageTextBox.Text.Length == 0) || (MessageTextBox.Text == TextBoxHint))
-            {
-                MessageTextBox.Text = null;
-                MessageTextBox.Foreground = BrushFromHex(whiteColor);
-            }
-        }
-
-        private void MessageTextBox_Leave(object sender, RoutedEventArgs e)
-        {
-            if (MessageTextBox.Text.Length == 0)
-            {
-                ShowMessageTextBoxHint();
-            }
-        }
-
-        private void SendMessage_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageTextBox.Text != TextBoxHint)
-            {
-                string message = MessageTextBox.Text;
-                player.SendPublicMessage(message);
-                //txtChat.AppendText(MessageTextBox.Text + Environment.NewLine);
-                ShowMessageTextBoxHint();
-            }
-        }
-
-        public void InitializeNewPlayer()
-        {
-            player.Name = RegistrationTextBox.Text;
-            player.Money = 15000;
-            //player.Color = player.ListOfParticipants.Count.ToString();
-            player.CurrentFieldIndex = 0;
-            player.FinalFieldIndex = 0;
-            player.movesLeft = 1;
-        }
-
-        private void ConnectButton_Click(object sender, RoutedEventArgs e)
-        {
-            logic = new MovesLogic(this);
-            InitializeNewPlayer();
-            //int profiles = player.ListOfParticipants.Count;
-            //int profiles = ListOfPlayers.Count;
-            //SetVisibilityProperties();
-            //ListOfPlayers.Add(player.ListOfParticipants[currentIndex]);
-            player.SendTcpRequest();
-        }
-        
-        public BitmapImage ImageSource(int randNumber)
-        {
-            //RandomNumber = cube.SetValueToCube(value);
-            string CubeSource = randNumber.ToString() + ".bmp";
-
-            BitmapImage myCubeImage = new BitmapImage();
-            myCubeImage.BeginInit();
-            myCubeImage.UriSource = new Uri(@"Images/Coub/" + CubeSource, UriKind.RelativeOrAbsolute);
-            myCubeImage.EndInit();
-            return myCubeImage;
-        }
-
-        public bool PlayerOnTopOrBottomLine()
-        {
-            if ((currentPlayer.FinalFieldIndex < 10)
-                || ((currentPlayer.FinalFieldIndex > 20) && (currentPlayer.FinalFieldIndex < 30))) return true;
-            else return false;
-        }
-
-        private void BuyFieldButton_Click(object sender, RoutedEventArgs e)
-        {
-            Field fieldToBuy = fields.ListOfFields[currentPlayer.FinalFieldIndex];
-            string message = "";
-            string componentName = fieldToBuy.Name;
-
-            message = player.ListOfParticipants[currentPlayer.id].name + " покупает " + componentName + " за " + fieldToBuy.Price.ToString() + "k";
-            player.SendDescriptionMessage(message);
-
-            currentPlayer.Money -= fieldToBuy.Price;
-
-            HideBuyFieldPanel();
-            SendMoneyMessage();
-
-            //if (NoMovesLeft()) NextPlayer();
-            
-            //ShowThrowCubesPanel();
-        }
-
-        public void SendMoneyMessage()
-        {
-            MoneyMessage moneyMessage = new MoneyMessage(player.clientIp, player.ListOfParticipants, DateTime.Now);
-            player.SendMoneyMessage(moneyMessage);
-        }
-
-        public void PayToAnotherPlayer(int moneyToPay, Field currentField)
-        {
-            /*
-            StackPanel panel = (StackPanel)AllPlayersProfiles.Children[currentIndex];
-            ((TextBlock)panel.Children[2]).Text = currentPlayer.Money.ToString() + "k";*/
-
-                foreach (var fieldOwner in player.ListOfParticipants)
-                {
-                    if (fieldOwner.Color == currentField.OwnerColor)
-                    {
-                        fieldOwner.Money += moneyToPay;
-                        /*
-                        panel = (StackPanel)AllPlayersProfiles.Children[fieldOwner.id];
-                        ((TextBlock)panel.Children[2]).Text = fieldOwner.Money.ToString() + "k";*/
-                    }
-                }
-            
-        }
-
-        public bool ChanceField()
-        {
-            bool flag = false;
-            List<int> chanceFieldIndex = new List<int>() { 2, 7, 17, 22, 33, 38 };
-            foreach (var field in chanceFieldIndex)
-            {
-                if (currentPlayer.FinalFieldIndex == field)
-                    return true;
-            }
-            return flag;
-        }
-
-        public bool PayRent()
-        {
-            Field currentField = fields.ListOfFields[currentPlayer.FinalFieldIndex];
-            if ((currentField.OwnerColor != currentPlayer.Color) && (currentField.OwnerColor != whiteColor)) return true;
-            else return false;
-        }
-
-        private void PayFieldButton_Click(object sender, RoutedEventArgs e)
-        {
-            string message = "";
-            int moneyToPay = 0;
-            Field currentField = fields.ListOfFields[currentPlayer.FinalFieldIndex];
-
-            moneyToPay = currentField.CurrentRent;
-
-            currentPlayer.Money -= moneyToPay;
-
-            if (!PayToBank() && !ChanceField() && PayRent()) PayToAnotherPlayer(moneyToPay, currentField);
-
-            message = currentPlayer.name + " оплачивает расходы";
-            player.SendDescriptionMessage(message);
-            //txtChat.AppendText(message + Environment.NewLine);
-
-            HidePayFieldPanel();
-            SendMoneyMessage();
-            //if (NoMovesLeft()) NextPlayer();
-            //if (NoMovesLeft()) NextPlayer();
-            //else ShowThrowCubesPanel();
-        }
-
-        public void NextPlayer()
-        {
-            if (currentPlayer.movesLeft == 0) player.ListOfParticipants[currentIndex].movesLeft++;
-            //MessageBox.Show("Сейчас ходит: " + currentPlayer.name + " id: " + currentPlayer.id);
-            currentIndex++;
-            currentIndex %= player.ListOfParticipants.Count;
-            currentPlayer = player.ListOfParticipants[currentIndex];
-            //MessageBox.Show("Будет ходить: " + currentPlayer.name + " id: " + currentPlayer.id);
-            player.SendNextPlayerMoveMessage(currentPlayer);
-        }
-
-        public bool PayToBank()
-        {
-            if ((currentPlayer.FinalFieldIndex == 4) || (currentPlayer.FinalFieldIndex == 36)) return true;
-            else return false;
-        }
-
-        private void ThrowCubesButton_Click(object sender, RoutedEventArgs e)
-
-        {
-            //string message = "";
-            /*
-            currentPlayer = ListOfPlayers[currentIndex];
-            if (currentPlayer.movesLeft == 0) NextPlayer();
-            */
-            //MessageBox.Show(currentIndex.ToString());
-            currentPlayer = player.ListOfParticipants[currentIndex];
-            //int CubeSum;
-            //Point MovePlayerTo = new Point();
-
-            if (currentIndex == 0)
-            {
-                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player1Chip);
-                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player1Chip);
-            }
-            else if (currentIndex == 1)
-            {
-                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player2Chip);
-                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player2Chip);
-            }
-            else if (currentIndex == 2)
-            {
-                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player3Chip);
-                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player3Chip);
-            }
-            else
-            {
-                currentPlayer.CurrentPositionX = (int)Canvas.GetLeft(player4Chip);
-                currentPlayer.CurrentPositionY = (int)Canvas.GetTop(player4Chip);
-            }
-            
-            CubeMessage cubeMessage = new CubeMessage(player.clientIp, currentPlayer.id, currentPlayer.LeftCube, currentPlayer.RightCube);
-            player.SendCubeMessage(cubeMessage);
-            
-            //Cube1.Source = ImageSource(currentPlayer.LeftCube);
-            //cube.LeftCube = RandomNumber;
-            //Cube2.Source = ImageSource(currentPlayer.RightCube);
-            //cube.RightCube = RandomNumber;
-            //CubeSum = currentPlayer.LeftCube + currentPlayer.RightCube;
-
-            //currentPlayer.LeftCube = cube.LeftCube;
-            //currentPlayer.RightCube = cube.RightCube;
-
-            //message = currentPlayer.Name + " выбрасывает " + cube.LeftCube.ToString() + ":" + cube.RightCube.ToString();
-
-            //player.SendPublicMessage(message);
-
-            //currentPlayer.movesLeft--;
-            /*if (cube.RightCube == cube.LeftCube)
-            {
-                message = currentPlayer.Name + " выбрасывает " + cube.LeftCube.ToString() + ":" + cube.RightCube.ToString() + " и получает ещё один ход, так как выпал дубль";
-                txtChat.AppendText(message + Environment.NewLine);
-                txtChat.ScrollToEnd();
-
-                currentPlayer.movesLeft++;
-            }
-
-            currentPlayer.CurrentFieldIndex = currentPlayer.FinalFieldIndex;
-            currentPlayer.FinalFieldIndex = (currentPlayer.FinalFieldIndex + CubeSum) % 40;
-            logic.Initialize(fields, currentPlayer, currentIndex);
-
-            MovePlayerTo = fields.ListOfCoordinates[currentPlayer.FinalFieldIndex];
-            if (currentIndex == 0) currentIndex = logic.MovePlayer(MovePlayerTo, player1Chip);
-            else if (currentIndex == 1) currentIndex = logic.MovePlayer(MovePlayerTo, player2Chip);
-            else if (currentIndex == 2) currentIndex = logic.MovePlayer(MovePlayerTo, player3Chip);
-            else currentIndex = logic.MovePlayer(MovePlayerTo, player4Chip);
-
-            ThrowCubesPanel.Visibility = Visibility.Hidden;
-            Cube1.Visibility = Visibility.Visible;
-            Cube2.Visibility = Visibility.Visible;*/
-        }
-
-        public void HideBuyFieldPanel()
-        {
-            BuyFieldPanel.Visibility = Visibility.Hidden;
-        }
-
-        public void HidePayFieldPanel()
-        {
-            PayFieldPanel.Visibility = Visibility.Hidden;
-        }
-
-        public bool NoMovesLeft()
-        {
-            if (currentPlayer.movesLeft <= 0)
-            {
-                MessageBox.Show(currentPlayer.name + " " + currentPlayer.movesLeft.ToString());
-                return true;
-            } 
-            else return false;
-        }
-
-        private void RefuseButton_Click(object sender, RoutedEventArgs e)
-        {
-            //if (NoMovesLeft()) NextPlayer();
-            HideBuyFieldPanel();
-            ShowThrowCubesPanel();
-        }
-
-        private void GiveUpButton_Click(object sender, RoutedEventArgs e)
-        {
-            ListOfPlayers.Remove(currentPlayer);
-            if (currentPlayer.id == 0) player1Chip.Visibility = Visibility.Hidden;
-            else if (currentPlayer.id == 1) player2Chip.Visibility = Visibility.Hidden;
-            else if (currentPlayer.id == 2) player3Chip.Visibility = Visibility.Hidden;
-            else player4Chip.Visibility = Visibility.Hidden;
-
-            if (ListOfPlayers.Count > 0)
-            {
-                //NextPlayer();
-                HidePayFieldPanel();
-                ShowThrowCubesPanel();
-            }
-        }
-
-        public bool OneOfRadioButtonIsChecked()
-        {
-            if (((bool)one.IsChecked) || ((bool)two.IsChecked) || ((bool)three.IsChecked) 
-                || ((bool)four.IsChecked) || ((bool)five.IsChecked) || ((bool)six.IsChecked))
-            {
-                return true;
-            }
-            else return false;
-        }
-
-        public int CheckedRadioButtonNumber()
-        {
-            if ((bool)one.IsChecked) return 1;
-            else if ((bool)two.IsChecked) return 2;
-            else if ((bool)three.IsChecked) return 3;
-            else if ((bool)four.IsChecked) return 4;
-            else if ((bool)five.IsChecked) return 5;
-            else return 6;
-        }
-
-        public void HideCasinoPanel()
-        {
-            CasinoPanel.Visibility = Visibility.Hidden;
-        }
-
-        public void UncheckRadioButtons()
-        {
-            one.IsChecked = false;
-            two.IsChecked = false;
-            three.IsChecked = false;
-            four.IsChecked = false;
-            five.IsChecked = false;
-            six.IsChecked = false;
         }
 
         private void HandleCasinoEvent()
@@ -717,15 +707,19 @@ namespace Client
                 if (value == player.LeftCube)
                 {
                     message += " и выигрывает свою ставку";
-                    currentPlayer.Money += WIN_MONEY;
+
+                    for (int i = 0; i < player.ListOfParticipants.Count; i++)
+                    {
+                        if (currentPlayer.id == player.ListOfParticipants[i].id) player.ListOfParticipants[i].Money += WIN_MONEY;
+                    }
                     if (currentPlayer.id == player.Index) MessageBox.Show("Вы выйграли " + WIN_MONEY.ToString() + "k");
                 }
                 else
                 {
                     message += " и проигрывает свою ставку";
-                    if (currentPlayer.id == player.Index)  MessageBox.Show("Вы не угадали");
+                    if (currentPlayer.id == player.Index) MessageBox.Show("Вы не угадали");
                 }
-                player.SendDescriptionMessage(message);
+                if (currentPlayer.id == player.Index) player.SendDescriptionMessage(message);
 
                 UncheckRadioButtons();
                 Cube1.Visibility = Visibility.Hidden;
@@ -735,64 +729,75 @@ namespace Client
             Cube1.Dispatcher.Invoke(showCube);
         }
 
-        private void CasinoPlayButton_Click(object sender, RoutedEventArgs e)
+//------other methods----------------------------------------------------------------------------------------------------------------
+
+        private void ReceivePublicMessage(PublicMessage publicMessage)
         {
-            if (OneOfRadioButtonIsChecked())
-            {
-                const int PRICE = 1000;
-                const int WIN_MONEY = 5000;
-                string message = "";
-
-                int value = CheckedRadioButtonNumber();
-                message = player.ListOfParticipants[currentPlayer.id].name + " ставит " + PRICE.ToString() + "k на число " + value.ToString() + " и бросает кубик...";
-                player.SendDescriptionMessage(message);
-                //txtChat.AppendText(message + Environment.NewLine);
-                //txtChat.ScrollToEnd();
-                CasinoMessage casinoMessage = new CasinoMessage(player.clientIp, currentPlayer.LeftCube);
-                player.SendCasinoMessage(casinoMessage);
-                /*
-                CubeMessage cubeMessage = new CubeMessage(player.clientIp, currentPlayer.LeftCube, currentPlayer.RightCube);
-                player.SendCubeMessage(cubeMessage);*/
-
-                //Cube1.Source = ImageSource(currentPlayer.LeftCube);
-                //cube.LeftCube = RandomNumber;
-                //Cube1.Visibility = Visibility.Visible;
-
-                //message = player.ListOfParticipants[currentPlayer.id].name + " выбрасывает число " + RandomNumber.ToString();
-                /*
-                if (value == RandomNumber)
-                {
-                    message += " и выигрывает свою ставку";
-                    txtChat.AppendText(message + Environment.NewLine);
-                    txtChat.ScrollToEnd();
-
-                    currentPlayer.Money += WIN_MONEY;
-                    MessageBox.Show("Вы выйграли " + WIN_MONEY.ToString() + "k");
-                }
-                else
-                {
-                    message += " и проигрывает свою ставку";
-                    txtChat.AppendText(message + Environment.NewLine);
-                    txtChat.ScrollToEnd();
-
-                    MessageBox.Show("Вы не угадали");
-                }*/
-                //UncheckRadioButtons();
-                //Cube1.Visibility = Visibility.Hidden;
-                //UpdateAllPlayersMoney();
-
-                //if (NoMovesLeft()) NextPlayer();
-                //HideCasinoPanel();
-                //ShowThrowCubesPanel();
-            }
-            else MessageBox.Show("Выберите значение, на которое хотите поставить");
+            string message = publicMessage.senderName + ": " + publicMessage.data;
+            ShowPublicMessage(message);
         }
 
-        private void RefuseToPlayCasino_Click(object sender, RoutedEventArgs e)
+        private void ReceiveDescriptionMessage(DescriptionMessage descriptionMessage)
         {
-            //if (NoMovesLeft()) NextPlayer();
-            HideCasinoPanel();
-            ShowThrowCubesPanel();
+            string message = descriptionMessage.data;
+            ShowPublicMessage(message);
+        }
+
+        private void ProcessPurchase(string componentName, Field fieldToBuy)
+        {
+            string fieldRent = fieldToBuy.CurrentRent.ToString();
+            fieldToBuy.OwnerColor = currentPlayer.Color;
+
+            if (PlayerOnTopOrBottomLine())
+            {
+                ((TextBlock)FindName(componentName)).Background = BrushFromHex(currentPlayer.Color);
+
+                if (currentPlayer.FinalFieldIndex != 28) ((TextBlock)FindName(componentName)).Text = fieldRent + "k";
+                else ((TextBlock)FindName(componentName)).Text = fieldRent + "x";
+            }
+            else
+            {
+                ((TabItem)FindName(componentName)).Background = BrushFromHex(currentPlayer.Color);
+
+                if (currentPlayer.FinalFieldIndex != 12) ((TabItem)FindName(componentName)).Header = "  " + fieldRent + "k";
+                else ((TabItem)FindName(componentName)).Header = "  " + fieldRent + "x";
+            }
+        }
+
+        public void SendMoneyMessage()
+        {
+            MoneyMessage moneyMessage = new MoneyMessage(player.clientIp, player.ListOfParticipants, DateTime.Now);
+            player.SendMoneyMessage(moneyMessage);
+        }
+
+        private void PayToAnotherPlayer(int moneyToPay, Field currentField)
+        {
+            foreach (var fieldOwner in player.ListOfParticipants)
+            {
+                if (fieldOwner.Color == currentField.OwnerColor)
+                {
+                    fieldOwner.Money += moneyToPay;
+                }
+            }
+        }
+
+        public void NextPlayer()
+        {
+            if (currentPlayer.movesLeft == 0) player.ListOfParticipants[currentIndex].movesLeft++;
+            currentIndex++;
+            currentIndex %= player.ListOfParticipants.Count;
+            currentPlayer = player.ListOfParticipants[currentIndex];
+            player.SendNextPlayerMoveMessage(currentPlayer);
+        }
+
+        private int CheckedRadioButtonNumber()
+        {
+            if ((bool)one.IsChecked) return 1;
+            else if ((bool)two.IsChecked) return 2;
+            else if ((bool)three.IsChecked) return 3;
+            else if ((bool)four.IsChecked) return 4;
+            else if ((bool)five.IsChecked) return 5;
+            else return 6;
         }
     }
 }
