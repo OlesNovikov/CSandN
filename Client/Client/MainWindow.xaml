@@ -1,0 +1,37 @@
+﻿<Window x:Class="ChatClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client"
+        mc:Ignorable="d"
+        Closed="ChatIsClosed"
+        MaxWidth="800"
+        MinWidth="800"
+        MaxHeight="450"
+        MinHeight="450"
+        Title="Chat" Height="450" Width="800">
+    <Grid Loaded="AppLoaded" Margin="0,0,0,0">
+        <TextBox Visibility="Hidden" FontSize="10" Name="ChatTextBox" VerticalAlignment="Top" TextWrapping="Wrap" AcceptsReturn="true" VerticalScrollBarVisibility="Auto" Height="300" Width="290" VerticalContentAlignment="Bottom" Background="Transparent" IsReadOnly="true" Margin="226,36,231,0"/>
+        <TextBox Height="auto" Visibility="Hidden" Name="MessageTextBox" Background="Transparent" Canvas.Left="445" TextWrapping="Wrap" Canvas.Top="612" BorderBrush="Transparent" Margin="248,336,344,56"/>
+        <Button Name="ConnectButton" Content="Connect" HorizontalAlignment="Left" Height="54" VerticalAlignment="Top" Width="256" Click="ConnectButton_Click" Visibility="Visible" Margin="266,242,0,0"/>
+        <TextBox Visibility="Visible" x:Name="UsernameTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="177" Margin="345,196,0,0"/>
+        <Label Visibility="Visible" x:Name="Username" Content="Username:" HorizontalAlignment="Left" Margin="266,193,0,0" VerticalAlignment="Top"/>
+        <ListView x:Name="ParticipantsListView" Visibility="Hidden" SelectionChanged="ParticipantsListView_Index" HorizontalAlignment="Left" Height="252" Margin="575,84,0,0" VerticalAlignment="Top" Width="164">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="auto">Participants</GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button x:Name="SendMessageButton" Visibility="Hidden" Content="Отправить" Height="auto" Click="SendMessageButton_Click" Margin="441,336,250,56"/>
+        <GroupBox x:Name="Profile" Visibility="Hidden" Header="Profile" HorizontalAlignment="Left" Height="55" Margin="575,22,0,0" VerticalAlignment="Top" Width="164">
+            <Label Margin="0,0,103,6">Name:</Label>
+        </GroupBox>
+        <Label x:Name="ClientProfileName" Visibility="Hidden" Content="" HorizontalAlignment="Left" Margin="625,40,0,0" VerticalAlignment="Top" Width="103"/>
+        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Hidden" HorizontalAlignment="Left" Height="274" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185"/>
+        <Label x:Name="NewPrivateMessagesLabel" Visibility="Hidden" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Hidden" Content="Mark everything as read" HorizontalAlignment="Left" Margin="74,336,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="MarkEverythingAsReadButton" Visibility="Hidden" Content="OK" HorizontalAlignment="Left" Margin="37,340,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
+    </Grid>
+</Window>
