@@ -41,12 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinarySerializer.cs" />
     <Compile Include="ClientIdMessage.cs" />
     <Compile Include="HistoryRequestMessage.cs" />
     <Compile Include="HistoryRespondMessage.cs" />
     <Compile Include="ListOfParticipantsMessage.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="myIPv4.cs" />
     <Compile Include="Participant.cs" />
     <Compile Include="PrivateMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
