@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System.IO;
 using MessageClasses;
+using AdditionalLibrary;
 
 namespace Server
 {
@@ -33,23 +34,6 @@ namespace Server
         List<PublicMessage> ListOfPublicMessages;
         List<string> ListOfNames;
 
-        // method takes the IPv4 address from list of addresses of this host
-        private IPAddress GetServerIpv4()
-        {
-            IPAddress[] allLocalIp = Dns.GetHostAddresses(Dns.GetHostName());
-            IPAddress Ipv4 = null;
-
-            foreach (var ip in allLocalIp)
-            {
-                if (ip.GetAddressBytes().Length == 4)
-                {
-                    Ipv4 = ip;
-                    return Ipv4;
-                }
-            }
-            return Ipv4;
-        }
-
         // creates empty list of messages and clients
         private void CreateMessagesStorage()
         {
@@ -64,7 +48,9 @@ namespace Server
         {
             udpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             tcpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            serverIp = GetServerIpv4();
+            serverIp = MyIPv4.GetIPv4();
+
+            Console.WriteLine("Server IP: " + serverIp.ToString());
 
             CreateMessagesStorage();
         }
@@ -298,17 +284,15 @@ namespace Server
         private void AddPrivateMessage(PrivateMessage message)
         {
             Client receiver = GetClientById(message);
-            Client sender = null;
             receiver.tcpHandler.Send(serializer.Serialize(message));
             foreach (var client in ListOfClients)
             {
                 if (client.id == message.senderId)
                 {
-                    sender = client;
+                    Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + message.GetType().Name.ToString() + " from " + client.Name + " to " + receiver.Name);
                     if (message.senderId != message.receiverId) client.tcpHandler.Send(serializer.Serialize(message));
                 }
             }
-            Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + message.GetType().Name.ToString() + " from " + sender.Name + " to " + receiver.Name);
         }
 
         private Client GetClientById(PrivateMessage message)
@@ -336,31 +320,13 @@ namespace Server
         {
             foreach (var client in ListOfClients)
             {
-                CloseSocket(ref client.tcpHandler);
-                CloseThread(ref client.listenTCP);
+                Close.CloseSocket(ref client.tcpHandler);
+                Close.CloseThread(ref client.listenTCP);
             }
-            CloseSocket(ref udpListenSocket);
-            CloseSocket(ref tcpListenSocket);
-            CloseThread(ref listenUdpThread);
-            CloseThread(ref listenTcpThread);
-        }
-
-        public void CloseSocket(ref Socket socket)
-        {
-            if (socket != null)
-            {
-                socket.Close();
-                socket = null;
-            }
-        }
-
-        public void CloseThread(ref Thread thread)
-        {
-            if (thread != null)
-            {
-                thread.Abort();
-                thread = null;
-            }
+            Close.CloseSocket(ref udpListenSocket);
+            Close.CloseSocket(ref tcpListenSocket);
+            Close.CloseThread(ref listenUdpThread);
+            Close.CloseThread(ref listenTcpThread);
         }
 
         ~Server()

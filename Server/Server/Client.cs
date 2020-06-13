@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AdditionalLibrary;
 using MessageClasses;
 
 namespace Server
@@ -68,28 +69,10 @@ namespace Server
             catch
             {
                 ClientDisconnectedEvent(this);
-                CloseSocket(ref tcpHandler);
-                CloseThread(ref listenTCP);
+                Close.CloseSocket(ref tcpHandler);
+                Close.CloseThread(ref listenTCP);
             }
 
-        }
-
-        private void CloseSocket(ref Socket socket)
-        {
-            if (socket != null)
-            {
-                socket.Close();
-                socket = null;
-            }
-        }
-
-        private void CloseThread(ref Thread thread)
-        {
-            if (thread != null)
-            {
-                thread.Abort();
-                thread = null;
-            }
         }
     }
 }

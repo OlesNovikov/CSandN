@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinarySerializer.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,6 +52,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\AdditionalLibrary\AdditionalLibrary\AdditionalLibrary.csproj">
+      <Project>{696F7D7B-E0A0-43D4-B27C-6B3E3096B30E}</Project>
+      <Name>AdditionalLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\FileServiceLibrary\FileServiceLibrary\FileServiceLibrary.csproj">
+      <Project>{ab97c46b-be3d-4203-90a4-bedf7b509d53}</Project>
+      <Name>FileServiceLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\MessageClasses\MessageClasses\MessageClasses.csproj">
       <Project>{A005C3E2-6CBA-4A96-9B03-C644D63F2B2A}</Project>
       <Name>MessageClasses</Name>

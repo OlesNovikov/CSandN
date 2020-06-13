@@ -8,3 +8,7 @@ D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Serv
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\MessageClasses.dll
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\MessageClasses.pdb
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\obj\Debug\Server.csproj.CopyComplete
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\AdditionalLibrary.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\FileServiceLibrary.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\AdditionalLibrary.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Server\Server\Server\bin\Debug\FileServiceLibrary.pdb
