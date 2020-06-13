@@ -14,6 +14,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MessageClasses;
+using FileServiceLibrary;
+using Microsoft.Win32;
+using System.IO;
 
 namespace ChatClient
 {
@@ -21,6 +24,7 @@ namespace ChatClient
     {
         int receiverIndex = -1;
         Client client;
+        FileClient fClient;
         List<Participant> ListOfParticipants = new List<Participant>();
 
         public MainWindow()
@@ -171,11 +175,13 @@ namespace ChatClient
         private void AppLoaded(object sender, RoutedEventArgs e)
         {
             client = new Client();
+            fClient = new FileClient();
             client.SendUdpRequest();
 
             client.MessageReceivedEvent += ShowMessage;
             client.ListOfParticipantsReceivedEvent += UpdateChatParticipants;
             client.HistoryMessageReceivedEvent += ShowMessagesHistory;
+            fClient.DictionaryOfFilesUpdatedEvent += ShowLoadedFiles;
         }
 
         private bool MessageFromServer(string senderName, int id)
@@ -188,6 +194,15 @@ namespace ChatClient
         {
             if ((id > -1) && (senderName != "")) return true;
             else return false;
+        }
+
+        public void ShowLoadedFiles(Dictionary<int, string> DictionaryOfFiles)
+        {
+            FilesToSendComboBox.Items.Clear();
+            foreach (var file in DictionaryOfFiles)
+            {
+                FilesToSendComboBox.Items.Add(file.Value);
+            }
         }
 
         public void ShowMessagesHistory()
@@ -276,6 +291,30 @@ namespace ChatClient
         private void MarkEverythingAsReadButton_Click(object sender, RoutedEventArgs e)
         {
             NewPrivateMessagesTextBox.Clear();
+        }
+
+        private async void LoadFileToServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                if (fileDialog.ShowDialog() == true)
+                {
+                    string filePath = fileDialog.FileName;
+                    string fName = System.IO.Path.GetRandomFileName();
+                    await fClient.LoadFileToService(filePath);
+                    MessageBox.Show(fName);
+                }
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("LoadFileToServiceButton_Click exception: " + exception.Message);
+            }
+        }
+
+        private void RemoveFileFromServiceButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

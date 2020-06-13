@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Windows;
 using MessageClasses;
 using System.IO;
+using AdditionalLibrary;
 
 namespace ChatClient
 {
@@ -54,10 +55,11 @@ namespace ChatClient
             ListOfParticipants = new List<Participant>();
             ListOfPrivateMessages = new List<PrivateMessage>();
             ListOfNames = new List<string>();
+
             udpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             tcpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            ip = GetClientIpv4();
+            ip = MyIPv4.GetIPv4();
             IPEndPoint clientIpPort = new IPEndPoint(ip, CLIENT_PORT);
 
             udpListenSocket.Bind(clientIpPort);
@@ -65,22 +67,6 @@ namespace ChatClient
 
             udpThread = new Thread(UDPConnection);
             tcpThread = new Thread(TCPConnection);
-        }
-
-        public IPAddress GetClientIpv4()
-        {
-            IPAddress[] allLocalIp = Dns.GetHostAddresses(Dns.GetHostName());
-            IPAddress Ipv4 = null;
-
-            foreach (var ip in allLocalIp)
-            {
-                if (ip.GetAddressBytes().Length == 4)
-                {
-                    Ipv4 = ip;
-                    return Ipv4;
-                }
-            }
-            return Ipv4;
         }
 
         public void SendUdpRequest()
@@ -124,8 +110,8 @@ namespace ChatClient
             TcpRequestMessage request = new TcpRequestMessage(ip, Name);
             tcpListenSocket.Send(serializer.Serialize(request));
             tcpThread.Start();
-            CloseSocket(ref udpListenSocket);
-            CloseThread(ref udpThread);
+            Close.CloseSocket(ref udpListenSocket);
+            Close.CloseThread(ref udpThread);
         }
 
         public void TCPConnection()
@@ -180,24 +166,12 @@ namespace ChatClient
         {
             try
             {
-                if (message is UdpRequestMessage) GetServerUdpRespond((UdpRequestMessage)message);
-                if (message is PublicMessage)
-                {
-                    GetPublicMessage((PublicMessage)message);
-                }
-                if (message is PrivateMessage)
-                {
-                    GetPrivateMessage((PrivateMessage)message);
-                }
-                if (message is HistoryRespondMessage)
-                {
-                    GetHistoryRequestMessage((HistoryRespondMessage)message);
-                } 
-                if (message is ClientIdMessage) GetClientIdMessage((ClientIdMessage)message);
-                if (message is ListOfParticipantsMessage)
-                {
-                    GetListOfParticipantsMessage((ListOfParticipantsMessage)message);
-                }
+                if (message is UdpRequestMessage) HandleServerUdpRespond((UdpRequestMessage)message);
+                if (message is PublicMessage) HandlePublicMessage((PublicMessage)message);
+                if (message is PrivateMessage) HandlePrivateMessage((PrivateMessage)message);
+                if (message is HistoryRespondMessage) HandleHistoryResponseMessage((HistoryRespondMessage)message);
+                if (message is ClientIdMessage) HandleClientIdMessage((ClientIdMessage)message);
+                if (message is ListOfParticipantsMessage) HandleListOfParticipantsMessage((ListOfParticipantsMessage)message);
             }
             catch (Exception exception)
             {
@@ -205,36 +179,36 @@ namespace ChatClient
             }
         }
 
-        private void GetServerUdpRespond(UdpRequestMessage server)
+        private void HandleServerUdpRespond(UdpRequestMessage server)
         {
             serverIpPort = new IPEndPoint(server.ip, server.port);
         }
 
-        private void GetPublicMessage(PublicMessage message)
+        private void HandlePublicMessage(PublicMessage message)
         {
             ListOfPublicMessages.Add(message);
             MessageReceivedEvent(message);
         }
 
-        private void GetPrivateMessage(PrivateMessage message)
+        private void HandlePrivateMessage(PrivateMessage message)
         {
             if ((id == message.receiverId) || (id == message.senderId)) ListOfPrivateMessages.Add(message);
             MessageReceivedEvent(message);
         }
 
-        private void GetHistoryRequestMessage(HistoryRespondMessage message)
+        private void HandleHistoryResponseMessage(HistoryRespondMessage message)
         {
             ListOfNames = message.ListOfNames;
             ListOfPublicMessages = message.ListOfMessages;
             HistoryMessageReceivedEvent();
         }
 
-        private void GetClientIdMessage(ClientIdMessage message)
+        private void HandleClientIdMessage(ClientIdMessage message)
         {
             id = message.id;
         }
 
-        private void GetListOfParticipantsMessage(ListOfParticipantsMessage message)
+        private void HandleListOfParticipantsMessage(ListOfParticipantsMessage message)
         {
             ListOfParticipants = message.ListOfParticipants;
             ListOfParticipantsReceivedEvent();
@@ -259,28 +233,10 @@ namespace ChatClient
 
         public void DisconnectClient()
         {
-            CloseSocket(ref tcpListenSocket);
-            CloseThread(ref tcpThread);
-            CloseSocket(ref udpListenSocket);
-            CloseThread(ref udpThread);
-        }
-
-        private void CloseSocket(ref Socket socket)
-        {
-            if (socket != null)
-            {
-                socket.Close();
-                socket = null;
-            }
-        }
-
-        private void CloseThread(ref Thread thread)
-        {
-            if (thread != null)
-            {
-                thread.Abort();
-                thread = null;
-            }
+            Close.CloseSocket(ref tcpListenSocket);
+            Close.CloseThread(ref tcpThread);
+            Close.CloseSocket(ref udpListenSocket);
+            Close.CloseThread(ref udpThread);
         }
     }
 }
