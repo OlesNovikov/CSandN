@@ -16,39 +16,26 @@
             <ColumnDefinition Width="185*"/>
             <ColumnDefinition Width="607*"/>
         </Grid.ColumnDefinitions>
-        <TextBox Visibility="Visible" FontSize="10" Name="ChatTextBox" VerticalAlignment="Top" TextWrapping="Wrap" AcceptsReturn="true" VerticalScrollBarVisibility="Auto" Height="326" VerticalContentAlignment="Bottom" Background="Transparent" IsReadOnly="true" Margin="55,32,236,0" Grid.Column="1"/>
-        <TextBox Height="auto" Visibility="Visible" Name="MessageTextBox" Background="Transparent" TextWrapping="Wrap" Margin="55,358,326,34" Grid.Column="1"/>
+        <TextBox Visibility="Hidden" FontSize="10" Name="ChatTextBox" VerticalAlignment="Top" TextWrapping="Wrap" AcceptsReturn="true" VerticalScrollBarVisibility="Auto" Height="326" VerticalContentAlignment="Bottom" Background="Transparent" IsReadOnly="true" Margin="55,32,236,0" Grid.Column="1"/>
+        <TextBox Height="auto" Visibility="Hidden" Name="MessageTextBox" Background="Transparent" TextWrapping="Wrap" Margin="55,358,326,34" Grid.Column="1"/>
         <Button Name="ConnectButton" Content="Connect" HorizontalAlignment="Left" Height="54" VerticalAlignment="Top" Width="256" Click="ConnectButton_Click" Visibility="Visible" Margin="81,242,0,0" Grid.Column="1"/>
         <TextBox Visibility="Visible" x:Name="UsernameTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="177" Margin="160,196,0,0" Grid.Column="1"/>
         <Label Visibility="Visible" x:Name="Username" Content="Username:" HorizontalAlignment="Left" Margin="81,193,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-        <ListView x:Name="ParticipantsListView" Visibility="Visible" SelectionChanged="ParticipantsListView_Index" HorizontalAlignment="Left" Height="212" Margin="390,84,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
+        <ListView x:Name="ParticipantsListView" Visibility="Hidden" SelectionChanged="ParticipantsListView_Index" HorizontalAlignment="Left" Height="212" Margin="390,84,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="auto">Participants</GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="SendMessageButton" Visibility="Visible" Content="Send" Height="auto" Click="SendMessageButton_Click" Margin="271,358,236,34" Grid.Column="1"/>
-        <GroupBox x:Name="Profile" Visibility="Visible" Header="Profile" HorizontalAlignment="Left" Height="55" Margin="390,22,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
+        <Button x:Name="SendMessageButton" Visibility="Hidden" Content="Send" Height="auto" Click="SendMessageButton_Click" Margin="271,358,236,34" Grid.Column="1"/>
+        <GroupBox x:Name="Profile" Visibility="Hidden" Header="Profile" HorizontalAlignment="Left" Height="55" Margin="390,22,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
             <Label Margin="0,0,103,6">Name:</Label>
         </GroupBox>
-        <Label x:Name="ClientProfileName" Visibility="Visible" Content="" HorizontalAlignment="Left" Margin="440,40,0,0" VerticalAlignment="Top" Width="103" Grid.Column="1"/>
-        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Visible" HorizontalAlignment="Left" Height="132" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
-        <Label x:Name="NewPrivateMessagesLabel" Visibility="Visible" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Visible" Content="Mark everything as read" HorizontalAlignment="Left" Margin="66,199,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Button x:Name="MarkEverythingAsReadButton" Visibility="Visible" Content="OK" HorizontalAlignment="Left" Margin="35,202,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
-        <ListView x:Name="FilesToDownloadListView" HorizontalAlignment="Left" Height="128" Margin="27,230,0,0" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="auto">Files to download</GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <Button x:Name="DownloadFileButton" Content="Download" HorizontalAlignment="Left" Margin="27,358,0,0" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
-        <ComboBox x:Name="FilesToSendComboBox" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1"/>
-        <Label x:Name="FileSizeLabel" Content="Total size:" HorizontalAlignment="Left" Margin="390,328,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-        <Label x:Name="FileSize" Content="" HorizontalAlignment="Left" Margin="456,328,0,0" VerticalAlignment="Top" Width="98" Grid.Column="1"/>
-        <Button x:Name="LoadFileToServiceButton" Content="Attach file" HorizontalAlignment="Left" Margin="390,358,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToServiceButton_Click" Grid.Column="1"/>
-        <Button x:Name="RemoveFileFromServiceButton" Content="Remove file" HorizontalAlignment="Left" Margin="479,358,0,0" VerticalAlignment="Top" Width="75" Click="RemoveFileFromServiceButton_Click" Grid.Column="1"/>
+        <Label x:Name="ClientProfileName" Visibility="Hidden" Content="" HorizontalAlignment="Left" Margin="440,40,0,0" VerticalAlignment="Top" Width="103" Grid.Column="1"/>
+        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Hidden" HorizontalAlignment="Left" Height="132" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
+        <Label x:Name="NewPrivateMessagesLabel" Visibility="Hidden" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Hidden" Content="Mark everything as read" HorizontalAlignment="Left" Margin="66,199,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <Button x:Name="MarkEverythingAsReadButton" Visibility="Hidden" Content="OK" HorizontalAlignment="Left" Margin="35,202,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
     </Grid>
 </Window>

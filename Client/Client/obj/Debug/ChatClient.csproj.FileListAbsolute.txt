@@ -16,7 +16,5 @@ D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\obj\
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\obj\Debug\ChatClient.csproj.GenerateResource.cache
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\obj\Debug\ChatClient.csproj.CoreCompileInputs.cache
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\obj\Debug\ChatClient.csproj.CopyComplete
-D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\bin\Debug\FileServiceLibrary.dll
-D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\bin\Debug\FileServiceLibrary.pdb
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\bin\Debug\AdditionalLibrary.dll
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\Client\Client\bin\Debug\AdditionalLibrary.pdb

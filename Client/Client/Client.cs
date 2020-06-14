@@ -148,8 +148,15 @@ namespace ChatClient
 
         public void SendPublicMessage(string data)
         {
-            Message message = new PublicMessage(ip, DateTime.Now, id, data);
-            tcpListenSocket.Send(serializer.Serialize(message));
+            try
+            {
+                Message message = new PublicMessage(ip, DateTime.Now, id, data);
+                tcpListenSocket.Send(serializer.Serialize(message));
+            }
+            catch
+            {
+                MessageBox.Show("Server is offline");
+            }
         }
 
         public void SendPrivateMessage(PrivateMessage message)

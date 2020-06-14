@@ -100,10 +100,6 @@
       <Project>{696F7D7B-E0A0-43D4-B27C-6B3E3096B30E}</Project>
       <Name>AdditionalLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\FileServiceLibrary\FileServiceLibrary\FileServiceLibrary.csproj">
-      <Project>{ab97c46b-be3d-4203-90a4-bedf7b509d53}</Project>
-      <Name>FileServiceLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MessageClasses\MessageClasses\MessageClasses.csproj">
       <Project>{a005c3e2-6cba-4a96-9b03-c644d63f2b2a}</Project>
       <Name>MessageClasses</Name>
