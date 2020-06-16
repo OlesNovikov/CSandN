@@ -13,26 +13,26 @@ namespace Server
 {
     public class Server
     {
-        const int SERVER_PORT = 8000;
-        const int CLIENT_PORT = 0;
-        const int BUFF_SIZE = 1024;
-        const int maxConnections = 10;
-        int currentMaxId = 0;
+        private const int SERVER_PORT = 8000;
+        private const int CLIENT_PORT = 0;
+        private const int BUFF_SIZE = 1024;
+        private const int MAX_CONNECTIONS = 10;
+        private int currentMaxId = 0;
 
-        Socket udpListenSocket;
-        Socket tcpListenSocket;
-        Thread listenUdpThread;
-        Thread listenTcpThread;
+        private Socket udpListenSocket;
+        private Socket tcpListenSocket;
+        private Thread listenUdpThread;
+        private Thread listenTcpThread;
 
-        IPAddress serverIp;
-        IPEndPoint UdpListenIpPort;
-        IPEndPoint TcpListenIpPort;
-        IPEndPoint clientIpPort;
-        BinarySerializer serializer;
+        private IPAddress serverIp;
+        private IPEndPoint UdpListenIpPort;
+        private IPEndPoint TcpListenIpPort;
+        private IPEndPoint clientIpPort;
+        private BinarySerializer serializer;
 
-        List<Client> ListOfClients;
-        List<PublicMessage> ListOfPublicMessages;
-        List<string> ListOfNames;
+        private List<Client> ListOfClients;
+        private List<PublicMessage> ListOfPublicMessages;
+        private List<string> ListOfNames;
 
         // creates empty list of messages and clients
         private void CreateMessagesStorage()
@@ -128,7 +128,7 @@ namespace Server
 
         private void ListenTcp()
         {
-            tcpListenSocket.Listen(maxConnections);
+            tcpListenSocket.Listen(MAX_CONNECTIONS);
 
             int numberOfBytes = 0;
 
@@ -172,7 +172,7 @@ namespace Server
             }
         }
 
-        public void SendIdMessage(TcpRequestMessage connectionRequest, Client client)
+        public void SendIdMessage(ConnectionRequest connectionRequest, Client client)
         {
             Message idMessage = new ClientIdMessage(connectionRequest.ip, client.id);
             client.tcpHandler.Send(serializer.Serialize(idMessage));
@@ -185,7 +185,7 @@ namespace Server
             SendMessageToAll(membersListMessage);
         }
 
-        public void SendPublicConnectedMessage(TcpRequestMessage connectionRequest, Client client)
+        public void SendPublicConnectedMessage(ConnectionRequest connectionRequest, Client client)
         {
             var publicMessage = new PublicMessage(connectionRequest.ip, DateTime.Now, -1, client.Name + " connected to chat");
             ListOfPublicMessages.Add(publicMessage);
@@ -196,9 +196,9 @@ namespace Server
         {
             try
             {
-                if (message is TcpRequestMessage)
+                if (message is ConnectionRequest)
                 {
-                    TcpRequestMessage connectionRequest = (TcpRequestMessage)message;
+                    ConnectionRequest connectionRequest = (ConnectionRequest)message;
                     Client client = new Client(connectionRequest.clientName, currentMaxId, tcpHandler);
 
                     client.MessageIdentification += IdentifyMessage;
@@ -247,7 +247,7 @@ namespace Server
         {
             try
             {
-                if (message is UdpRequestMessage) SendUdpServerRespond((UdpRequestMessage)message);
+                if (message is BroadcastMessage) SendUdpServerRespond((BroadcastMessage)message);
                 if (message is PublicMessage) AddPublicMessage((PublicMessage)message);
                 if (message is PrivateMessage) AddPrivateMessage((PrivateMessage)message);
                 if (message is HistoryRequestMessage) SendHistory((HistoryRequestMessage)message);
@@ -258,10 +258,10 @@ namespace Server
             }
         }
 
-        private void SendUdpServerRespond(UdpRequestMessage client)
+        private void SendUdpServerRespond(BroadcastMessage client)
         {
             IPEndPoint clientIpPort = new IPEndPoint(client.ip, client.port);
-            Message message = new UdpRequestMessage(serverIp, SERVER_PORT);
+            Message message = new BroadcastMessage(serverIp, SERVER_PORT);
 
             udpListenSocket.SendTo(serializer.Serialize(message), clientIpPort);
         }
@@ -311,7 +311,7 @@ namespace Server
             {
                 if (client.id == message.id)
                 {
-                    client.tcpHandler.Send(serializer.Serialize(new HistoryRespondMessage(serverIp, ListOfPublicMessages, ListOfNames)));
+                    client.tcpHandler.Send(serializer.Serialize(new HistoryResponseMessage(serverIp, ListOfPublicMessages, ListOfNames)));
                 }
             }
         }

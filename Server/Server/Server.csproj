@@ -52,16 +52,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\AdditionalLibrary\AdditionalLibrary\AdditionalLibrary.csproj">
-      <Project>{696F7D7B-E0A0-43D4-B27C-6B3E3096B30E}</Project>
+    <ProjectReference Include="..\..\AdditionalLibrary\AdditionalLibrary\AdditionalLibrary.csproj">
+      <Project>{696f7d7b-e0a0-43d4-b27c-6b3e3096b30e}</Project>
       <Name>AdditionalLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\FileServiceLibrary\FileServiceLibrary\FileServiceLibrary.csproj">
+    <ProjectReference Include="..\..\FileServiceLibrary\FileServiceLibrary\FileServiceLibrary.csproj">
       <Project>{ab97c46b-be3d-4203-90a4-bedf7b509d53}</Project>
       <Name>FileServiceLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\MessageClasses\MessageClasses\MessageClasses.csproj">
-      <Project>{A005C3E2-6CBA-4A96-9B03-C644D63F2B2A}</Project>
+    <ProjectReference Include="..\..\MessageClasses\MessageClasses\MessageClasses.csproj">
+      <Project>{a005c3e2-6cba-4a96-9b03-c644d63f2b2a}</Project>
       <Name>MessageClasses</Name>
     </ProjectReference>
   </ItemGroup>
