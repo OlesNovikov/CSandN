@@ -97,10 +97,7 @@ namespace ChatClient
                 }
                 while (udpListenSocket.Available > 0);
 
-                if (numberOfBytes > 0)
-                {
-                    IdentifyMessage(serializer.Deserialize(stream.ToArray()));
-                }
+                IdentifyMessage(serializer.Deserialize(stream.ToArray()));
             }
         }
 

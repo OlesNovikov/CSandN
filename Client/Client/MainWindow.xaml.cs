@@ -1,29 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using FileServiceLibrary;
 using MessageClasses;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 
 namespace ChatClient
 {
     public partial class MainWindow : Window
     {
-        int receiverIndex = -1;
-        Client client;
-        List<Participant> ListOfParticipants = new List<Participant>();
+        private int receiverIndex = -1;
+        private Client client;
+        private FileClient fClient;
+        private List<Participant> ListOfParticipants = new List<Participant>();
 
         public MainWindow()
         {
@@ -173,6 +163,7 @@ namespace ChatClient
         private void AppLoaded(object sender, RoutedEventArgs e)
         {
             client = new Client();
+            fClient = new FileClient();
             client.SendUdpRequest();
 
             client.MessageReceivedEvent += ShowMessage;
@@ -282,6 +273,25 @@ namespace ChatClient
         private void MarkEverythingAsReadButton_Click(object sender, RoutedEventArgs e)
         {
             NewPrivateMessagesTextBox.Clear();
+        }
+
+        private async void LoadFileToServise_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == true)
+            {
+                string filePath = fileDialog.FileName;
+                FileInfo selectedFile = new FileInfo(filePath);
+                int fileSize = (int)selectedFile.Length;
+                string fileExtension = selectedFile.Extension;
+
+                if (fClient.SizeFits(fileSize) && fClient.ExtensionExists(fileExtension))
+                {
+                    int fileID = await fClient.LoadFileToService(filePath);
+                    MessageBox.Show(fileID.ToString());
+                }
+                else MessageBox.Show("Chosen file size or extension does not fits");
+            }
         }
     }
 }
