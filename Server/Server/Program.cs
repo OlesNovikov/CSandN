@@ -9,7 +9,7 @@ namespace Server
 {
     class Program
     {
-        const string PREFIX = "http://localhost:8888/";
+        const string PREFIX = "http://localhost:8081/";
 
         static void Main(string[] args)
         {
@@ -17,7 +17,6 @@ namespace Server
             FileServer fServer = new FileServer(PREFIX);
 
             server.StartListen();
-            fServer.StartListen();
         }
     }
 }

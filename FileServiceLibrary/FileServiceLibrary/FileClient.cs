@@ -11,14 +11,14 @@ namespace FileServiceLibrary
 {
     public class FileClient
     {
-        private const string SERVER_URI = "http://localhost:8888/";
+        private const string SERVER_URI = "http://localhost:8081/";
         private const int MB = 1024 * 1024;
         private const int MAX_FILE_SIZE = 5 * MB;
         private const int MAX_TOTAL_SIZE = 3 * MAX_FILE_SIZE;
 
-        private Dictionary<int, string> DictionaryOfFiles;
+        public Dictionary<int, string> DictionaryOfFiles;
         private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".jpeg", ".pdf" };
-        private int TotalSize = 0;
+        public int TotalSize = 0;
 
         public FileClient()
         {
@@ -28,7 +28,11 @@ namespace FileServiceLibrary
         public bool SizeFits(int fileSize)
         {
             int totalSize = TotalSize;
-            if ((fileSize <= MAX_FILE_SIZE) && ((TotalSize += fileSize) <= MAX_TOTAL_SIZE)) return true;
+            if ((fileSize <= MAX_FILE_SIZE) && ((TotalSize += fileSize) <= MAX_TOTAL_SIZE))
+            {
+                TotalSize += fileSize;
+                return true;
+            }
             else return false;
         }
 
@@ -51,11 +55,10 @@ namespace FileServiceLibrary
             ByteArrayContent byteArrayContent;
             byte[] byteArray;
 
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+            using (FileStream fileStream = File.OpenRead(filePath))
             {
-                int fileSize = (int)fileStream.Length;
-                byteArray = new byte[fileSize];
-                fileStream.Read(byteArray, 0, fileSize);
+                byteArray = new byte[fileStream.Length];
+                fileStream.Read(byteArray, 0, byteArray.Length);
             }
             byteArrayContent = new ByteArrayContent(byteArray);
             encodedContent.Add(byteArrayContent);
@@ -69,15 +72,17 @@ namespace FileServiceLibrary
             {
                 string fileName = Path.GetFileName(filePath);
                 string fileExtension = Path.GetExtension(filePath);
+                string uniqueFileName = UniqueFileName(fileName);
 
                 using (HttpClient client = new HttpClient())
                 {
-                    HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, SERVER_URI + UniqueFileName(fileName));
+                    HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, SERVER_URI);
                     httpRequestMessage.Content = MIMEEncodedContent(filePath);
-                    httpRequestMessage.Headers.Add("FileName", fileName);
+                    httpRequestMessage.Headers.Add("FileName", uniqueFileName);
 
                     HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
                     string fileID = await httpResponseMessage.Content.ReadAsStringAsync();
+                    DictionaryOfFiles.Add(int.Parse(fileID), fileName);
                     return int.Parse(fileID);
                 }
             }
@@ -85,6 +90,24 @@ namespace FileServiceLibrary
             {
                 MessageBox.Show("public async Task<int> LoadFileToService(string filePath)" + exception.Message);
                 return ERROR_CODE;
+            }
+        }
+
+        public async Task<int> RemoveFileFromService(int fileID)
+        {
+            const int ERROR_CODE = 404;
+            const int SUCCESS_CODE = 200;
+            using (HttpClient client = new HttpClient())
+            {
+                HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, SERVER_URI + fileID);
+                HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
+
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    DictionaryOfFiles.Remove(fileID);
+                    return SUCCESS_CODE;
+                }
+                else return ERROR_CODE;
             }
         }
     }
