@@ -11,6 +11,7 @@ namespace ChatClient
     public partial class MainWindow : Window
     {
         private int receiverIndex = -1;
+        private int selectedFileIndex = -1;
         private Client client;
         private FileClient fClient;
         private List<Participant> ListOfParticipants = new List<Participant>();
@@ -275,7 +276,17 @@ namespace ChatClient
             NewPrivateMessagesTextBox.Clear();
         }
 
-        private async void LoadFileToServise_Click(object sender, RoutedEventArgs e)
+        private void UpdateFilesToLoadDictionary()
+        {
+            LoadedFilesComboBox.Items.Clear();
+            foreach (var file in fClient.DictionaryOfFiles)
+            {
+                LoadedFilesComboBox.Items.Add("[" + file.Key.ToString() + "] " + file.Value);
+            }
+            FilesSizeTextBox.Text = fClient.TotalSize.ToString();
+        }
+
+        private async void LoadFileToService_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == true)
@@ -288,10 +299,46 @@ namespace ChatClient
                 if (fClient.SizeFits(fileSize) && fClient.ExtensionExists(fileExtension))
                 {
                     int fileID = await fClient.LoadFileToService(filePath);
-                    MessageBox.Show(fileID.ToString());
+                    UpdateFilesToLoadDictionary();
+                    MessageBox.Show("File loaded");
                 }
                 else MessageBox.Show("Chosen file size or extension does not fits");
             }
+        }
+
+        private void LoadedFilesComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            MessageBox.Show(LoadedFilesComboBox.SelectedIndex.ToString());
+            selectedFileIndex = LoadedFilesComboBox.SelectedIndex;
+        }
+
+        private async void RemoveFileFromService_Click(object sender, RoutedEventArgs e)
+        {
+            const int SUCCESS_CODE = 200;
+            if (selectedFileIndex > -1)
+            {
+                int removeID = SelectedFileID();
+                int removeResult = await fClient.RemoveFileFromService(removeID);
+
+                if (removeResult == SUCCESS_CODE)
+                {
+                    UpdateFilesToLoadDictionary();
+                    MessageBox.Show("File deleted");
+                }
+                else MessageBox.Show("Delete error");
+            }
+            else MessageBox.Show("Chose file to remove");
+        }
+
+        private int SelectedFileID()
+        {
+            int i = 0;
+            foreach (var file in fClient.DictionaryOfFiles)
+            {
+                if (i == selectedFileIndex) return file.Key;
+                else i++;
+            }
+            return -1;
         }
     }
 }

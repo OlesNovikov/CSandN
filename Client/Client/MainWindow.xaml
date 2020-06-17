@@ -37,10 +37,10 @@
         <Label x:Name="NewPrivateMessagesLabel" Visibility="Visible" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
         <Label x:Name="MarkEverythingAsReadLabel" Visibility="Visible" Content="Mark everything as read" HorizontalAlignment="Left" Margin="66,199,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
         <Button x:Name="MarkEverythingAsReadButton" Visibility="Visible" Content="OK" HorizontalAlignment="Left" Margin="35,202,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
-        <ComboBox x:Name="LoadedFilesComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164"/>
+        <ComboBox x:Name="LoadedFilesComboBox" SelectionChanged="LoadedFilesComboBox_SelectionChanged" Grid.Column="1" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164"/>
         <Label x:Name="FilesSizeLabel" Content="Size:" Grid.Column="1" HorizontalAlignment="Left" Margin="390,328,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="FilesSizeTextBox" IsReadOnly="True" BorderBrush="Transparent" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="429,332,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="125"/>
-        <Button x:Name="LoadFileToServise" Content="Load file" Grid.Column="1" HorizontalAlignment="Left" Margin="390,360,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToServise_Click"/>
-        <Button x:Name="button1" Content="Delete file" Grid.Column="1" HorizontalAlignment="Left" Margin="479,360,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="LoadFileToService" Content="Load file" Grid.Column="1" HorizontalAlignment="Left" Margin="390,360,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToService_Click"/>
+        <Button x:Name="RemoveFileFromService" Content="Remove file" Grid.Column="1" HorizontalAlignment="Left" Margin="479,360,0,0" VerticalAlignment="Top" Width="75" Click="RemoveFileFromService_Click"/>
     </Grid>
 </Window>
