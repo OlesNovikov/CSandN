@@ -140,11 +140,11 @@ namespace ChatClient
             }
         }
 
-        public void SendPublicMessage(string data)
+        public void SendPublicMessage(string data, Dictionary<int, string> DictionaryOfFiles)
         {
             try
             {
-                Message message = new PublicMessage(ip, DateTime.Now, id, data);
+                Message message = new PublicMessage(ip, DateTime.Now, id, data, DictionaryOfFiles);
                 tcpListenSocket.Send(serializer.Serialize(message));
             }
             catch

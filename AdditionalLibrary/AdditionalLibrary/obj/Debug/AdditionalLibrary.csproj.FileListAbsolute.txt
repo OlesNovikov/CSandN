@@ -4,3 +4,9 @@ D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\AdditionalLibrary\
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.csproj.CoreCompileInputs.cache
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.dll
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\Chat\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\bin\Debug\AdditionalLibrary.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\bin\Debug\AdditionalLibrary.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.csprojAssemblyReference.cache
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.csproj.CoreCompileInputs.cache
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\AdditionalLibrary\AdditionalLibrary\obj\Debug\AdditionalLibrary.pdb

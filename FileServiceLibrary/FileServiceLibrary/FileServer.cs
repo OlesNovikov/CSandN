@@ -12,7 +12,11 @@ namespace FileServiceLibrary
 {
     public class FileServer
     {
-        private readonly string FILE_STORAGE = Directory.GetCurrentDirectory() + "\\File storage\\";
+        private readonly static string FILE_SERVICE_PATH = "D:\\Oles\\БГУИР\\2 курс\\4 сем\\КСиС\\лабы\\ChatRep\\CSandN\\FileServiceLibrary\\FileServiceLibrary\\bin\\Debug";
+        private readonly string FILE_STORAGE = FILE_SERVICE_PATH + "\\File storage\\";
+
+        private const int ERROR_CODE = 404;
+        private const int SUCCESS_CODE = 200;
 
         private HttpListener httpListener;
         private Dictionary<int, string> DictionaryOfFiles;
@@ -27,6 +31,18 @@ namespace FileServiceLibrary
             httpListenThread = new Thread(StartListen);
             httpListenThread.IsBackground = true;
             httpListenThread.Start();
+
+            SetupStorage();
+        }
+
+        private void SetupStorage()
+        {
+            if (Directory.Exists(FILE_STORAGE))
+            {
+                DirectoryInfo fileStorageDirectory = new DirectoryInfo(FILE_STORAGE);
+                foreach (var file in fileStorageDirectory.GetFiles()) file.Delete();
+            }
+            else Directory.CreateDirectory(FILE_STORAGE);
         }
 
         private void StartListen()
@@ -60,6 +76,9 @@ namespace FileServiceLibrary
         private void HandlePOSTMethod(HttpListenerContext listenerContext)
         {
             string fileName = listenerContext.Request.Headers.Get("FileName");
+
+            if (FileNameExist(fileName)) fileName = UniqueFileName(fileName);
+
             Stream inputStream = listenerContext.Request.InputStream;
             Encoding contentEncoding = listenerContext.Request.ContentEncoding;
 
@@ -69,6 +88,7 @@ namespace FileServiceLibrary
 
             int length = requestContent.Length - 118;
             byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(content, 74, length);
+            //byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(requestContent);
 
             SaveFileInStorage(fileName, fileContent);
 
@@ -87,22 +107,35 @@ namespace FileServiceLibrary
 
         private void HandleHEADMethod(HttpListenerContext listenerContext)
         {
+            int fileInformationID = int.Parse(listenerContext.Request.Url.LocalPath.Substring(1));
 
+            using (listenerContext.Response.OutputStream)
+            {
+                if (FileIDExist(fileInformationID))
+                {
+                    listenerContext.Response.StatusCode = SUCCESS_CODE;
+
+                    string filePath = FILE_STORAGE + DictionaryOfFiles[fileInformationID];
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+                    {
+                        int fileSize = (int)fileStream.Length;
+                        listenerContext.Response.Headers.Add("FileSize", fileSize.ToString());
+                    }
+                }
+                else listenerContext.Response.StatusCode = ERROR_CODE;
+            } 
         }
 
         private void HandleDELETEMethod(HttpListenerContext listenerContext)
         {
-            const int ERROR_CODE = 404;
-            const int SUCCESS_CODE = 200;
-
             int removeID = int.Parse(listenerContext.Request.Url.LocalPath.Substring(1));
 
             using (listenerContext.Response.OutputStream)
             {
-                if (FileExist(removeID))
+                if (FileIDExist(removeID))
                 {
                     listenerContext.Response.StatusCode = SUCCESS_CODE;
-                    Console.WriteLine(DateTime.Now.ToShortTimeString() + " File removed from storage: " + DictionaryOfFiles[removeID] + removeID.ToString());
+                    Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + DictionaryOfFiles[removeID] + " [" + removeID.ToString() + "] " + " removed from storage");
                     string removePath = FILE_STORAGE + DictionaryOfFiles[removeID];
                     File.Delete(removePath);
                     DictionaryOfFiles.Remove(removeID);
@@ -111,10 +144,23 @@ namespace FileServiceLibrary
             }
         }
 
-        private bool FileExist(int fileID)
+        private bool FileIDExist(int fileID)
         {
             if (DictionaryOfFiles.ContainsKey(fileID)) return true;
             else return false;
+        }
+
+        private bool FileNameExist(string fileName)
+        {
+            if (DictionaryOfFiles.ContainsValue(fileName)) return true;
+            else return false;
+        }
+
+        private string UniqueFileName(string fileName)
+        {
+            string randomFileName = Path.GetRandomFileName();
+            string uniqueFileName = randomFileName.Substring(0, 8) + "_" + fileName;
+            return uniqueFileName;
         }
 
         private void SaveFileInStorage(string fileName, byte[] fileContent)
@@ -125,7 +171,7 @@ namespace FileServiceLibrary
                 fileStream.Write(fileContent, 0, fileContent.Length);
             }
             DictionaryOfFiles.Add(maxFileID, fileName);
-            Console.WriteLine(DateTime.Now.ToShortTimeString() + " New file added to storage: " + fileName + " [" + maxFileID.ToString() + "]");
+            Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + fileName + " [" + maxFileID.ToString() + "] " + "added to storage");
         }
     }
 }

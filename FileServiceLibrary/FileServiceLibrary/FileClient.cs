@@ -11,13 +11,15 @@ namespace FileServiceLibrary
 {
     public class FileClient
     {
-        private const string SERVER_URI = "http://localhost:8081/";
+        private const int SUCCESS_CODE = 200;
+        private const int ERROR_CODE = 404;
+        private const string SERVER_URI = "http://localhost:8080/";
         private const int MB = 1024 * 1024;
         private const int MAX_FILE_SIZE = 5 * MB;
         private const int MAX_TOTAL_SIZE = 3 * MAX_FILE_SIZE;
 
         public Dictionary<int, string> DictionaryOfFiles;
-        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".jpeg", ".pdf" };
+        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".jpeg", ".pdf", ".rar" };
         public int TotalSize = 0;
 
         public FileClient()
@@ -28,11 +30,7 @@ namespace FileServiceLibrary
         public bool SizeFits(int fileSize)
         {
             int totalSize = TotalSize;
-            if ((fileSize <= MAX_FILE_SIZE) && ((TotalSize += fileSize) <= MAX_TOTAL_SIZE))
-            {
-                TotalSize += fileSize;
-                return true;
-            }
+            if ((fileSize <= MAX_FILE_SIZE) && ((totalSize += fileSize) <= MAX_TOTAL_SIZE)) return true;
             else return false;
         }
 
@@ -40,13 +38,6 @@ namespace FileServiceLibrary
         {
             if (ListOfFilesExtensions.Exists(x => x.Contains(extension))) return true;
             else return false;
-        }
-
-        private string UniqueFileName(string fileName)
-        {
-            string randomFileName = Path.GetRandomFileName();
-            string uniqueFileName = randomFileName.Substring(0, 8) + "_" + fileName;
-            return uniqueFileName;
         }
 
         private MultipartFormDataContent MIMEEncodedContent(string filePath)
@@ -67,23 +58,25 @@ namespace FileServiceLibrary
 
         public async Task<int> LoadFileToService(string filePath)
         {
-            const int ERROR_CODE = -200;
             try
             {
                 string fileName = Path.GetFileName(filePath);
-                string fileExtension = Path.GetExtension(filePath);
-                string uniqueFileName = UniqueFileName(fileName);
 
                 using (HttpClient client = new HttpClient())
                 {
+                    
                     HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, SERVER_URI);
                     httpRequestMessage.Content = MIMEEncodedContent(filePath);
-                    httpRequestMessage.Headers.Add("FileName", uniqueFileName);
-
+                    httpRequestMessage.Headers.Add("FileName", fileName); 
+                    
                     HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
-                    string fileID = await httpResponseMessage.Content.ReadAsStringAsync();
-                    DictionaryOfFiles.Add(int.Parse(fileID), fileName);
-                    return int.Parse(fileID);
+                    if (httpResponseMessage.IsSuccessStatusCode)
+                    {
+                        string fileID = await httpResponseMessage.Content.ReadAsStringAsync();
+                        DictionaryOfFiles.Add(int.Parse(fileID), fileName);
+                        return int.Parse(fileID);
+                    }
+                    else return ERROR_CODE;
                 }
             }
             catch (Exception exception)
@@ -95,8 +88,6 @@ namespace FileServiceLibrary
 
         public async Task<int> RemoveFileFromService(int fileID)
         {
-            const int ERROR_CODE = 404;
-            const int SUCCESS_CODE = 200;
             using (HttpClient client = new HttpClient())
             {
                 HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, SERVER_URI + fileID);
@@ -109,6 +100,23 @@ namespace FileServiceLibrary
                 }
                 else return ERROR_CODE;
             }
+        }
+
+        public async Task<int> GetFileInformation(int fileID)
+        {
+            int fileSize = 0;
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Head, SERVER_URI + fileID);
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    var fileSizeHeadersValue = httpResponseMessage.Headers.GetValues("FileSize");
+                    fileSize = int.Parse(fileSizeHeadersValue.First());
+                    return fileSize;
+                }
+            }
+            return fileSize;
         }
     }
 }

@@ -187,7 +187,7 @@ namespace Server
 
         public void SendPublicConnectedMessage(ConnectionRequest connectionRequest, Client client)
         {
-            var publicMessage = new PublicMessage(connectionRequest.ip, DateTime.Now, -1, client.Name + " connected to chat");
+            var publicMessage = new PublicMessage(connectionRequest.ip, DateTime.Now, -1, client.Name + " connected to chat", null);
             ListOfPublicMessages.Add(publicMessage);
             SendMessageToAll(publicMessage);
         }
@@ -227,7 +227,7 @@ namespace Server
         {
             ListOfClients.Remove(client);
             Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + client.Name + "[" + client.id.ToString() + "]" + " left chat");
-            PublicMessage message = new PublicMessage(serverIp, DateTime.Now, -1, client.Name.ToString() + " left this chat");
+            PublicMessage message = new PublicMessage(serverIp, DateTime.Now, -1, client.Name.ToString() + " left this chat", null);
             ListOfPublicMessages.Add(message);
             SendMessageToAll(message);
             SendListOfParticipants();
