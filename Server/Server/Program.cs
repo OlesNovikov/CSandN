@@ -13,8 +13,8 @@ namespace Server
 
         static void Main(string[] args)
         {
-            Server server = new Server();
             FileServer fServer = new FileServer(PREFIX);
+            Server server = new Server(fServer);
 
             server.StartListen();
         }

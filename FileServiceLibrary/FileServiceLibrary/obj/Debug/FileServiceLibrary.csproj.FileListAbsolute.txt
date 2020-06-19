@@ -10,3 +10,6 @@ D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServ
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\obj\Debug\FileServiceLibrary.csproj.CoreCompileInputs.cache
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\obj\Debug\FileServiceLibrary.dll
 D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\obj\Debug\FileServiceLibrary.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\bin\Debug\AdditionalLibrary.dll
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\bin\Debug\AdditionalLibrary.pdb
+D:\Oles\БГУИР\2 курс\4 сем\КСиС\лабы\ChatRep\CSandN\FileServiceLibrary\FileServiceLibrary\obj\Debug\FileServiceLibrary.csproj.CopyComplete

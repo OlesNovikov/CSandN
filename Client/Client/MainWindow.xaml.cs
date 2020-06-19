@@ -28,9 +28,9 @@ namespace ChatClient
         private void ChatIsClosed(object sender, EventArgs e)
         {
             client.DisconnectClient();
-        }
+        } 
 
-        private void ShowTextFileContent(string sendDateTime, string senderName, Message message, bool prvt, bool pblc)
+        private  void ShowTextFileContent(string sendDateTime, string senderName, Message message, bool prvt, bool pblc)
         {
             string textContent = "";
             string fileContent = "";
@@ -51,9 +51,11 @@ namespace ChatClient
                 {
                     foreach (var file in privateMessage.DictionaryOfFiles)
                     {
-                        fileContent = "Download " + file.Value + " [" + file.Key.ToString() + "]";
+                        int fileSize = privateMessage.DictionaryOfSizes[file.Key];
+                        fileContent = file.Value + " " + FileSize(fileSize);
                         int width = fileContent.Length * 6;
-                        Button fileMessage = new Button() { Content = fileContent, Width = width };
+                        Button fileMessage = new Button() { Name = "ID" + file.Key.ToString(), Content = fileContent, Width = width };
+                        fileMessage.Click += new RoutedEventHandler(DownloadFileButton_Click);
                         messageStackPanel.Children.Add(fileMessage);
                     }
                 }
@@ -72,9 +74,11 @@ namespace ChatClient
                 {
                     foreach (var file in publicMessage.DictionaryOfFiles)
                     {
-                        fileContent = "Download " + file.Value + " [" + file.Key.ToString() + "]";
+                        int fileSize = publicMessage.DictionaryOfSizes[file.Key];
+                        fileContent = file.Value + " " + FileSize(fileSize);
                         int width = fileContent.Length * 6;
-                        Button fileMessage = new Button() { Content = fileContent, Width = width };
+                        Button fileMessage = new Button() { Name = "ID" + file.Key.ToString(), Content = fileContent, Width = width };
+                        fileMessage.Click += new RoutedEventHandler(DownloadFileButton_Click);
                         messageStackPanel.Children.Add(fileMessage);
                     }
                 }
@@ -82,6 +86,38 @@ namespace ChatClient
 
             ParentStackPanel.Children.Add(messageStackPanel);
             ParentStackPanel.ScrollOwner.ScrollToEnd();
+        }
+
+        private int FileIDFromButton()
+        {
+            for (int i = 0; i < ParentStackPanel.Children.Count; i++)
+            {
+                var ChildStackPanel = (StackPanel)ParentStackPanel.Children[i];
+                for (int j = 0; j < ChildStackPanel.Children.Count; j++)
+                if (ChildStackPanel.Children[j].IsFocused)
+                {
+                    string stringFileID = ((Button)ChildStackPanel.Children[j]).Name;
+                    int fileID = int.Parse(stringFileID.Substring(2));
+                    return fileID;
+                }
+            }
+            return ERROR_CODE;
+        }
+
+        private async void DownloadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            int fileID = FileIDFromButton();
+
+            if (fileID != ERROR_CODE)
+            {
+                string downloadedFileName = await fClient.DownloadFileFromService(fileID);
+                if (downloadedFileName != "")
+                {
+                    MessageBox.Show(downloadedFileName + " downloaded");
+                }
+                else MessageBox.Show("Download error");
+            }
+            else MessageBox.Show("Define fileID error");
         }
 
         public void ShowMessage(Message message)
@@ -101,8 +137,6 @@ namespace ChatClient
                 {
                     if (ClientInDialogWithSender(i, privateMessage.senderId, privateMessage.receiverId))
                     {
-                        //ChatTextBox.AppendText(privateMessage.dateTime.ToShortTimeString() + " " + senderName + ": " + privateMessage.data + Environment.NewLine);
-                        //ChatTextBox.ScrollToEnd();
                         ShowTextFileContent(sendDateTime, senderName, message, true, false);
                         inDialog = true;
                     }
@@ -120,22 +154,14 @@ namespace ChatClient
                 if (ThisClientIsSender(publicMessage.ID)) senderName = "You";
                 else senderName = client.GetClientNameById(publicMessage.ID);
 
-                /*
-                if (!DialogSelected())
-                {
-                    if (senderName == "") ChatTextBox.AppendText(sendDateTime + " " + publicMessage.data + Environment.NewLine);
-                    else ChatTextBox.AppendText(sendDateTime + " " + senderName + ": " + publicMessage.data + Environment.NewLine);
-                    ChatTextBox.ScrollToEnd();
-                }*/
-
                 if (!DialogSelected())
                 {
                     ShowTextFileContent(sendDateTime, senderName, message, false, true);
                 }
             };
 
-            if (message is PublicMessage) ChatTextBox.Dispatcher.Invoke(ShowPublicMessage);
-            else if (message is PrivateMessage) ChatTextBox.Dispatcher.Invoke(ShowPrivateMessage);
+            if (message is PublicMessage) ParentStackPanel.Dispatcher.Invoke(ShowPublicMessage);
+            else if (message is PrivateMessage) ParentStackPanel.Dispatcher.Invoke(ShowPrivateMessage);
         }
 
         public void UpdateChatParticipants()
@@ -194,7 +220,7 @@ namespace ChatClient
         public void ShowDialogHistory()
         {
             string senderName = "";
-            //ChatTextBox.Clear();
+
             ParentStackPanel.Children.Clear();
 
             foreach (var message in client.ListOfPrivateMessages)
@@ -206,8 +232,6 @@ namespace ChatClient
                 {
                     if (ClientInDialogWithSender(i, message.senderId, message.receiverId))
                     {
-                        //ChatTextBox.AppendText(message.dateTime.ToShortTimeString() + " " + senderName + ": " + message.data + Environment.NewLine);
-                        //ChatTextBox.ScrollToEnd();
                         string sendDateTime = message.dateTime.ToShortTimeString();
                         ShowTextFileContent(sendDateTime, senderName, message, true, false);
                     }
@@ -260,7 +284,6 @@ namespace ChatClient
                 string senderName = "";
                 string sendDateTime = "";
 
-                //ChatTextBox.Clear();
                 ParentStackPanel.Children.Clear();
 
                 foreach (var message in client.ListOfPublicMessages)
@@ -271,21 +294,18 @@ namespace ChatClient
                     else senderName = client.GetClientNameById(message.ID);
 
                     if (MessageFromServer(senderName, message.ID)) ShowTextFileContent(sendDateTime, senderName, message, false, true);
-                    //ChatTextBox.AppendText(sendDateTime + " " + message.data + Environment.NewLine);
                     else if (FromCurrentListOfParticipants(senderName, message.ID)) ShowTextFileContent(sendDateTime, senderName, message, false, true);
-                    //ChatTextBox.AppendText(sendDateTime + " " + senderName + ": " + message.data + Environment.NewLine);
                     else
                     {
                         senderName = client.GetNameFromList(message.ID);
                         ShowTextFileContent(sendDateTime, senderName, message, false, true);
-                        //ChatTextBox.AppendText(sendDateTime + " " + senderName + ": " + message.data + Environment.NewLine);
                     }
-                    //ChatTextBox.ScrollToEnd();
+
                     ParentStackPanel.ScrollOwner.ScrollToEnd();
                 }
             };
 
-            ChatTextBox.Dispatcher.Invoke(showHistory);
+            ParentStackPanel.Dispatcher.Invoke(showHistory);
         }
 
         private void SendMessageButton_Click(object sender, RoutedEventArgs e)
@@ -293,14 +313,14 @@ namespace ChatClient
             string data = MessageTextBox.Text;
             if ((data != "") || (LoadedFilesComboBox.Items.Count != 0))
             {
-                if (!DialogSelected()) client.SendPublicMessage(data, fClient.DictionaryOfFiles);
+                if (!DialogSelected()) client.SendPublicMessage(data, fClient.DictionaryOfFiles, client.DictionaryOfSizes);
                 else
                 {
                     for (int i = 0; i < client.ListOfParticipants.Count; i++)
                     {
                         if (i == receiverIndex)
                         {
-                            PrivateMessage message = new PrivateMessage(client.ip, DateTime.Now, client.id, data, client.ListOfParticipants[receiverIndex].id, fClient.DictionaryOfFiles);
+                            PrivateMessage message = new PrivateMessage(client.ip, DateTime.Now, client.id, data, client.ListOfParticipants[receiverIndex].id, fClient.DictionaryOfFiles, client.DictionaryOfSizes);
                             client.SendPrivateMessage(message);
                         }
                     }
@@ -308,7 +328,8 @@ namespace ChatClient
                 MessageTextBox.Text = null;
                 fClient.DictionaryOfFiles.Clear();
                 LoadedFilesComboBox.Items.Clear();
-                FilesSizeValueLabel.Content = "0,00B";
+                fClient.TotalSize = 0;
+                FilesSizeValueLabel.Content = FileSize(fClient.TotalSize);
             }
         }
 
@@ -318,7 +339,6 @@ namespace ChatClient
             UsernameTextBox.Visibility = Visibility.Hidden;
             Username.Visibility = Visibility.Hidden;
 
-            ChatTextBox.Visibility = Visibility.Visible;
             MessageTextBox.Visibility = Visibility.Visible;
             ParticipantsListView.Visibility = Visibility.Visible;
             SendMessageButton.Visibility = Visibility.Visible;
@@ -357,39 +377,42 @@ namespace ChatClient
             NewPrivateMessagesTextBox.Clear();
         }
 
-        private void ShowTotalFilesSize()
+        private string FileSize(float size)
         {
-            float KB = 1000.0f;
-            float MB = KB * KB;
-            var totalSize = (float)fClient.TotalSize;
-            string totalSizeStr;
-            if (totalSize < KB)
+            const float KB = 1000.0f;
+            const float MB = KB * KB;
+
+            var fSize = size;
+            string fSizeStr;
+
+            if (fSize < KB)
             {
-                totalSizeStr = string.Format("{0:F2}", totalSize);
-                FilesSizeValueLabel.Content = totalSizeStr + "B";
+                fSizeStr = string.Format("{0:F2}", fSize);
+                return fSizeStr + "B";
             }
-            else if (totalSize < MB)
+            else if (fSize < MB)
             {
-                totalSize /= KB;
-                totalSizeStr = string.Format("{0:F2}", totalSize);
-                FilesSizeValueLabel.Content = totalSizeStr + "KB";
+                fSize /= KB;
+                fSizeStr = string.Format("{0:F2}", fSize);
+                return fSizeStr + "KB";
             }
             else
             {
-                totalSize /= MB;
-                totalSizeStr = string.Format("{0:F2}", totalSize);
-                FilesSizeValueLabel.Content = totalSizeStr + "MB";
+                fSize /= MB;
+                fSizeStr = string.Format("{0:F2}", fSize);
+                return fSizeStr + "MB";
             }
         }
 
-        private void UpdateFilesToLoadDictionary()
+        private void UpdateLoadedFilesDictionary()
         {
             LoadedFilesComboBox.Items.Clear();
             foreach (var file in fClient.DictionaryOfFiles)
             {
-                LoadedFilesComboBox.Items.Add("[" + file.Key.ToString() + "] " + file.Value);
+                LoadedFilesComboBox.Items.Add(file.Value);
             }
-            ShowTotalFilesSize();
+            var totalSize = (float)fClient.TotalSize;
+            FilesSizeValueLabel.Content = FileSize(totalSize);
         }
 
         private async void LoadFileToService_Click(object sender, RoutedEventArgs e)
@@ -407,8 +430,9 @@ namespace ChatClient
                     int fileID = await fClient.LoadFileToService(filePath);
                     if (fileID != ERROR_CODE)
                     {
+                        fileSize = await fClient.GetFileSize(fileID);
                         fClient.TotalSize += fileSize;
-                        UpdateFilesToLoadDictionary();
+                        UpdateLoadedFilesDictionary();
                         MessageBox.Show("File loaded");
                     }
                     else MessageBox.Show("Load error");
@@ -419,7 +443,6 @@ namespace ChatClient
 
         private void LoadedFilesComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            MessageBox.Show(LoadedFilesComboBox.SelectedIndex.ToString());
             selectedFileIndex = LoadedFilesComboBox.SelectedIndex;
         }
 
@@ -428,13 +451,13 @@ namespace ChatClient
             if (selectedFileIndex > -1)
             {
                 int removeID = SelectedFileID();
-                int fileSize = await fClient.GetFileInformation(removeID);
+                int fileSize = await fClient.GetFileSize(removeID);
                 int removeResult = await fClient.RemoveFileFromService(removeID);
 
                 if (removeResult == SUCCESS_CODE)
                 {
                     fClient.TotalSize -= fileSize;
-                    UpdateFilesToLoadDictionary();
+                    UpdateLoadedFilesDictionary();
                     MessageBox.Show("File removed");
                 }
                 else MessageBox.Show("Remove error");

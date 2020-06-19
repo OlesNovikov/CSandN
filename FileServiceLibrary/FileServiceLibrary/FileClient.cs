@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AdditionalLibrary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +19,7 @@ namespace FileServiceLibrary
         private const int MB = 1024 * 1024;
         private const int MAX_FILE_SIZE = 5 * MB;
         private const int MAX_TOTAL_SIZE = 3 * MAX_FILE_SIZE;
+        private readonly static string SAVE_FILE_PATH = Directory.GetCurrentDirectory() + "\\File storage\\";
 
         public Dictionary<int, string> DictionaryOfFiles;
         private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".jpeg", ".pdf", ".rar" };
@@ -25,6 +28,7 @@ namespace FileServiceLibrary
         public FileClient()
         {
             DictionaryOfFiles = new Dictionary<int, string>();
+            FileStorage.SetupStorage(SAVE_FILE_PATH);
         }
 
         public bool SizeFits(int fileSize)
@@ -69,7 +73,7 @@ namespace FileServiceLibrary
                     httpRequestMessage.Content = MIMEEncodedContent(filePath);
                     httpRequestMessage.Headers.Add("FileName", fileName); 
                     
-                    HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
+                    HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage); 
                     if (httpResponseMessage.IsSuccessStatusCode)
                     {
                         string fileID = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -81,7 +85,7 @@ namespace FileServiceLibrary
             }
             catch (Exception exception)
             {
-                MessageBox.Show("public async Task<int> LoadFileToService(string filePath)" + exception.Message);
+                MessageBox.Show("public async Task<int> LoadFileToService(string filePath). " + exception.Message);
                 return ERROR_CODE;
             }
         }
@@ -102,7 +106,7 @@ namespace FileServiceLibrary
             }
         }
 
-        public async Task<int> GetFileInformation(int fileID)
+        public async Task<int> GetFileSize(int fileID)
         {
             int fileSize = 0;
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Head, SERVER_URI + fileID);
@@ -117,6 +121,48 @@ namespace FileServiceLibrary
                 }
             }
             return fileSize;
+        }
+
+        public async Task<string> GetFileName(int fileID)
+        {
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Head, SERVER_URI + fileID);
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    var fileNameHeadersValue = httpResponseMessage.Headers.GetValues("FileName");
+                    string fileName = fileNameHeadersValue.First();
+                    return fileName;
+                }
+                return "";
+            }
+        }
+
+        public async Task<string> DownloadFileFromService(int fileID)
+        {
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, SERVER_URI + fileID);
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage);
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    string fileName = await GetFileName(fileID);
+                    string clientFileName = fileName.Substring(9);
+                    string filePath = SAVE_FILE_PATH + clientFileName;
+
+                    byte[] fileContent = await httpResponseMessage.Content.ReadAsByteArrayAsync();
+
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        fileStream.Write(fileContent, 0, fileContent.Length);
+                    }
+
+                    return clientFileName;
+                }
+                else return "";
+            }
         }
     }
 }

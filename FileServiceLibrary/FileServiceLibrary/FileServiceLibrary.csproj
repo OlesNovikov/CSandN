@@ -46,5 +46,11 @@
     <Compile Include="FileServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AdditionalLibrary\AdditionalLibrary\AdditionalLibrary.csproj">
+      <Project>{696F7D7B-E0A0-43D4-B27C-6B3E3096B30E}</Project>
+      <Name>AdditionalLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -35,6 +35,8 @@ namespace ChatClient
         public List<PrivateMessage> ListOfPrivateMessages;
         public List<Participant> ListOfParticipants;
         public List<string> ListOfNames;
+        public Dictionary<int, int> DictionaryOfSizes;
+
 
         public delegate void MessageReceived(Message message);
         public event MessageReceived MessageReceivedEvent;
@@ -140,11 +142,11 @@ namespace ChatClient
             }
         }
 
-        public void SendPublicMessage(string data, Dictionary<int, string> DictionaryOfFiles)
+        public void SendPublicMessage(string data, Dictionary<int, string> DictionaryOfFiles, Dictionary<int, int> DictionaryOfSizes)
         {
             try
             {
-                Message message = new PublicMessage(ip, DateTime.Now, id, data, DictionaryOfFiles);
+                Message message = new PublicMessage(ip, DateTime.Now, id, data, DictionaryOfFiles, DictionaryOfSizes);
                 tcpListenSocket.Send(serializer.Serialize(message));
             }
             catch

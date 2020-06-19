@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
+using AdditionalLibrary;
 
 namespace FileServiceLibrary
 {
@@ -20,6 +21,7 @@ namespace FileServiceLibrary
 
         private HttpListener httpListener;
         private Dictionary<int, string> DictionaryOfFiles;
+        public Dictionary<int, int> DictionaryOfSizes;
         private Thread httpListenThread;
         private int maxFileID = 0;
         
@@ -28,21 +30,12 @@ namespace FileServiceLibrary
             httpListener = new HttpListener();
             httpListener.Prefixes.Add(prefix);
             DictionaryOfFiles = new Dictionary<int, string>();
+            DictionaryOfSizes = new Dictionary<int, int>();
             httpListenThread = new Thread(StartListen);
             httpListenThread.IsBackground = true;
             httpListenThread.Start();
 
-            SetupStorage();
-        }
-
-        private void SetupStorage()
-        {
-            if (Directory.Exists(FILE_STORAGE))
-            {
-                DirectoryInfo fileStorageDirectory = new DirectoryInfo(FILE_STORAGE);
-                foreach (var file in fileStorageDirectory.GetFiles()) file.Delete();
-            }
-            else Directory.CreateDirectory(FILE_STORAGE);
+            FileStorage.SetupStorage(FILE_STORAGE);
         }
 
         private void StartListen()
@@ -77,7 +70,7 @@ namespace FileServiceLibrary
         {
             string fileName = listenerContext.Request.Headers.Get("FileName");
 
-            if (FileNameExist(fileName)) fileName = UniqueFileName(fileName);
+            fileName = UniqueFileName(fileName);
 
             Stream inputStream = listenerContext.Request.InputStream;
             Encoding contentEncoding = listenerContext.Request.ContentEncoding;
@@ -88,7 +81,6 @@ namespace FileServiceLibrary
 
             int length = requestContent.Length - 118;
             byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(content, 74, length);
-            //byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(requestContent);
 
             SaveFileInStorage(fileName, fileContent);
 
@@ -102,7 +94,32 @@ namespace FileServiceLibrary
 
         private void HandleGETMethod(HttpListenerContext listenerContext)
         {
+            int getFileID = int.Parse(listenerContext.Request.Url.LocalPath.Substring(1));
+            
+            using (listenerContext.Response.OutputStream)
+            {
+                if (FileIDExist(getFileID))
+                {
+                    listenerContext.Response.StatusCode = SUCCESS_CODE;
+                    string fileName = DictionaryOfFiles[getFileID];
+                    byte[] getFileContent = FileContent(getFileID, fileName);
+                    listenerContext.Response.OutputStream.Write(getFileContent, 0, getFileContent.Length);
+                    listenerContext.Response.Headers.Add("FileName", fileName);
+                }
+                else listenerContext.Response.StatusCode = ERROR_CODE;
+            }
+        }
 
+        private byte[] FileContent(int getFileID, string fileName)
+        {
+            string filePath = FILE_STORAGE + fileName;
+
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+            {
+                byte[] fileContent = new byte[fileStream.Length];
+                fileStream.Read(fileContent, 0, fileContent.Length);
+                return fileContent;
+            }
         }
 
         private void HandleHEADMethod(HttpListenerContext listenerContext)
@@ -115,11 +132,13 @@ namespace FileServiceLibrary
                 {
                     listenerContext.Response.StatusCode = SUCCESS_CODE;
 
-                    string filePath = FILE_STORAGE + DictionaryOfFiles[fileInformationID];
+                    string fileName = DictionaryOfFiles[fileInformationID];
+                    string filePath = FILE_STORAGE + fileName;
                     using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
                     {
                         int fileSize = (int)fileStream.Length;
                         listenerContext.Response.Headers.Add("FileSize", fileSize.ToString());
+                        listenerContext.Response.Headers.Add("FileName", fileName);
                     }
                 }
                 else listenerContext.Response.StatusCode = ERROR_CODE;
@@ -138,7 +157,9 @@ namespace FileServiceLibrary
                     Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + DictionaryOfFiles[removeID] + " [" + removeID.ToString() + "] " + " removed from storage");
                     string removePath = FILE_STORAGE + DictionaryOfFiles[removeID];
                     File.Delete(removePath);
+
                     DictionaryOfFiles.Remove(removeID);
+                    DictionaryOfSizes.Remove(removeID);
                 }
                 else listenerContext.Response.StatusCode = ERROR_CODE;
             }
@@ -166,11 +187,16 @@ namespace FileServiceLibrary
         private void SaveFileInStorage(string fileName, byte[] fileContent)
         {
             string fileSavePath = FILE_STORAGE + fileName;
+            int fileSize;
+
             using (FileStream fileStream = new FileStream(fileSavePath, FileMode.Create))
             {
                 fileStream.Write(fileContent, 0, fileContent.Length);
+                fileSize = (int)fileStream.Length;
             }
             DictionaryOfFiles.Add(maxFileID, fileName);
+            DictionaryOfSizes.Add(maxFileID, fileSize);
+
             Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + fileName + " [" + maxFileID.ToString() + "] " + "added to storage");
         }
     }

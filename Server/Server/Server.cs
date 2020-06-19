@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using MessageClasses;
 using AdditionalLibrary;
+using FileServiceLibrary;
 
 namespace Server
 {
@@ -33,6 +34,7 @@ namespace Server
         private List<Client> ListOfClients;
         private List<PublicMessage> ListOfPublicMessages;
         private List<string> ListOfNames;
+        private FileServer fServer;
 
         // creates empty list of messages and clients
         private void CreateMessagesStorage()
@@ -44,7 +46,7 @@ namespace Server
         }
 
         // creates sockets, that will listen for UDP, TCP requests
-        public Server()
+        public Server(FileServer fServer)
         {
             udpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             tcpListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -53,6 +55,8 @@ namespace Server
             Console.WriteLine("Server IP: " + serverIp.ToString());
 
             CreateMessagesStorage();
+
+            this.fServer = fServer;
         }
 
         // initializes IPEndPoints for sockets to listen
@@ -187,7 +191,7 @@ namespace Server
 
         public void SendPublicConnectedMessage(ConnectionRequest connectionRequest, Client client)
         {
-            var publicMessage = new PublicMessage(connectionRequest.ip, DateTime.Now, -1, client.Name + " connected to chat", null);
+            var publicMessage = new PublicMessage(connectionRequest.ip, DateTime.Now, -1, client.Name + " connected to chat", null, null);
             ListOfPublicMessages.Add(publicMessage);
             SendMessageToAll(publicMessage);
         }
@@ -227,7 +231,7 @@ namespace Server
         {
             ListOfClients.Remove(client);
             Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + client.Name + "[" + client.id.ToString() + "]" + " left chat");
-            PublicMessage message = new PublicMessage(serverIp, DateTime.Now, -1, client.Name.ToString() + " left this chat", null);
+            PublicMessage message = new PublicMessage(serverIp, DateTime.Now, -1, client.Name.ToString() + " left this chat", null, null);
             ListOfPublicMessages.Add(message);
             SendMessageToAll(message);
             SendListOfParticipants();
@@ -277,14 +281,19 @@ namespace Server
                 } 
             }
             Console.WriteLine(DateTime.Now.ToShortTimeString() + " " + message.GetType().Name.ToString() + " from " + sender);
+
+            message.DictionaryOfSizes = fServer.DictionaryOfSizes;
             ListOfPublicMessages.Add(message);
             SendMessageToAll(message);
         }
 
         private void AddPrivateMessage(PrivateMessage message)
         {
+            message.DictionaryOfSizes = fServer.DictionaryOfSizes;
+
             Client receiver = GetClientById(message);
             receiver.tcpHandler.Send(serializer.Serialize(message));
+
             foreach (var client in ListOfClients)
             {
                 if (client.id == message.senderId)
@@ -311,7 +320,7 @@ namespace Server
             {
                 if (client.id == message.id)
                 {
-                    client.tcpHandler.Send(serializer.Serialize(new HistoryResponseMessage(serverIp, ListOfPublicMessages, ListOfNames)));
+                    client.tcpHandler.Send(serializer.Serialize(new HistoryResponseMessage(serverIp, ListOfPublicMessages, ListOfNames, fServer.DictionaryOfSizes)));
                 }
             }
         }

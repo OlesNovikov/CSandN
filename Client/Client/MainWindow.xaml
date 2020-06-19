@@ -19,7 +19,6 @@
         <ScrollViewer CanContentScroll="True" Grid.Column="1" Margin="0,32,236,61" HorizontalAlignment="Right" Width="316">
             <StackPanel x:Name="ParentStackPanel" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="316" Grid.Column="1" Height="326"/>
         </ScrollViewer>
-        <TextBox Visibility="Visible" FontSize="10" x:Name="ChatTextBox" VerticalAlignment="Top" TextWrapping="Wrap" AcceptsReturn="true" VerticalScrollBarVisibility="Auto" Height="163" VerticalContentAlignment="Bottom" Background="Transparent" IsReadOnly="true" Margin="35,242,44,0"/>
         <TextBox Height="auto" Visibility="Visible" x:Name="MessageTextBox" Background="Transparent" TextWrapping="Wrap" Margin="55,358,326,34" Grid.Column="1"/>
         <Button x:Name="ConnectButton" Content="Connect" HorizontalAlignment="Left" Height="54" VerticalAlignment="Top" Width="256" Click="ConnectButton_Click" Visibility="Visible" Margin="81,242,0,0" Grid.Column="1"/>
         <TextBox Visibility="Visible" x:Name="UsernameTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="177" Margin="160,196,0,0" Grid.Column="1"/>
