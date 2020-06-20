@@ -13,7 +13,8 @@ namespace FileServiceLibrary
 {
     public class FileServer
     {
-        private readonly static string FILE_SERVICE_PATH = "D:\\Oles\\БГУИР\\2 курс\\4 сем\\КСиС\\лабы\\ChatRep\\CSandN\\FileServiceLibrary\\FileServiceLibrary\\bin\\Debug";
+        private const string FILE_SERVICE_PATH = "D:\\Oles\\БГУИР\\2 курс\\4 сем\\КСиС\\лабы\\ChatRep\\CSandN\\FileServiceLibrary\\FileServiceLibrary\\bin\\Debug";
+        private const string BOUNDARY_EXAMPLE = "\r\n--25193041-fda3-48ac-8a3a-084a6df7dd21--\r\n";
         private readonly string FILE_STORAGE = FILE_SERVICE_PATH + "\\File storage\\";
 
         private const int ERROR_CODE = 404;
@@ -66,21 +67,64 @@ namespace FileServiceLibrary
             if (httpMethod == DELETE) HandleDELETEMethod(listenerContext);
         }
 
+        private string FileNameFromContent(string requestContent)
+        {
+            const string SEARCH_STRING = "filename=";
+            int searchStringLength = SEARCH_STRING.Length;
+
+            int searchStringIndex = requestContent.IndexOf(SEARCH_STRING);
+            int firstLetterIndexInFileName = searchStringIndex + searchStringLength;
+
+            string fileName = "";
+            for (int i = firstLetterIndexInFileName; i < requestContent.Length; i++)
+            {
+                fileName += requestContent[i];
+                if (requestContent[i + 1] == ';') return fileName;
+            }
+            return fileName;
+        }
+
+        private string GetOriginalContent(string requestContent)
+        {
+            int i = 0;
+            int startContentIndex = 0;
+            string originalContent = "";
+
+            int boundaryLength = BOUNDARY_EXAMPLE.Length;
+            int finalContentIndex = requestContent.Length - boundaryLength;
+
+            while (i < finalContentIndex)
+            {
+                char currentChar = requestContent[i];
+                if (startContentIndex != 0)
+                {
+                    requestContent = requestContent.Remove(finalContentIndex);
+                    originalContent = requestContent.Remove(0, startContentIndex);
+                    return originalContent;
+                }
+                else if ((currentChar == '\0') && (requestContent[i - 1] == '\n'))
+                {
+                    startContentIndex = i + 1;
+                }
+                i++;
+            }
+            return originalContent;
+        }
+
         private void HandlePOSTMethod(HttpListenerContext listenerContext)
         {
-            string fileName = listenerContext.Request.Headers.Get("FileName");
-
-            fileName = UniqueFileName(fileName);
-
             Stream inputStream = listenerContext.Request.InputStream;
             Encoding contentEncoding = listenerContext.Request.ContentEncoding;
 
             StreamReader reader = new StreamReader(inputStream, contentEncoding);
             string requestContent = reader.ReadToEnd();
-            char[] content = requestContent.ToCharArray();
 
-            int length = requestContent.Length - 118;
-            byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(content, 74, length);
+            string fileName = FileNameFromContent(requestContent);
+            fileName = UniqueFileName(fileName);
+
+            string originalContent = GetOriginalContent(requestContent);
+
+            byte[] fileContent = listenerContext.Request.ContentEncoding.GetBytes(originalContent);
 
             SaveFileInStorage(fileName, fileContent);
 

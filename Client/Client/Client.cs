@@ -37,7 +37,6 @@ namespace ChatClient
         public List<string> ListOfNames;
         public Dictionary<int, int> DictionaryOfSizes;
 
-
         public delegate void MessageReceived(Message message);
         public event MessageReceived MessageReceivedEvent;
 

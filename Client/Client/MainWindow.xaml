@@ -35,10 +35,10 @@
             <Label Margin="0,0,103,6" Content="Name:"/>
         </GroupBox>
         <Label x:Name="ClientProfileName" Visibility="Visible" IsEnabled="False" Content="" HorizontalAlignment="Left" Margin="440,40,0,0" VerticalAlignment="Top" Width="103" Grid.Column="1"/>
-        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Visible" HorizontalAlignment="Left" Height="132" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Visible" HorizontalAlignment="Left" Height="293" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
         <Label x:Name="NewPrivateMessagesLabel" Visibility="Visible" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Visible" Content="Mark everything as read" HorizontalAlignment="Left" Margin="66,199,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Button x:Name="MarkEverythingAsReadButton" Visibility="Visible" Content="OK" HorizontalAlignment="Left" Margin="35,202,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
+        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Visible" Content="Mark everything as read" HorizontalAlignment="Left" Margin="69,357,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <Button x:Name="MarkEverythingAsReadButton" Visibility="Visible" Content="OK" HorizontalAlignment="Left" Margin="38,360,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
         <ComboBox x:Name="LoadedFilesComboBox" SelectionChanged="LoadedFilesComboBox_SelectionChanged" Grid.Column="1" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164"/>
         <Label x:Name="FilesSizeLabel" Content="Size:" Grid.Column="1" HorizontalAlignment="Left" Margin="390,328,0,0" VerticalAlignment="Top"/>
         <Button x:Name="LoadFileToService" Content="Load file" Grid.Column="1" HorizontalAlignment="Left" Margin="390,360,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToService_Click"/>

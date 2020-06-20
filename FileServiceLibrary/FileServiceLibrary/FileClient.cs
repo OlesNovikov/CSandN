@@ -22,7 +22,7 @@ namespace FileServiceLibrary
         private readonly static string SAVE_FILE_PATH = Directory.GetCurrentDirectory() + "\\File storage\\";
 
         public Dictionary<int, string> DictionaryOfFiles;
-        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".jpeg", ".pdf", ".rar" };
+        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".JPG", ".jpeg", ".pdf", ".rar" };
         public int TotalSize = 0;
 
         public FileClient()
@@ -52,11 +52,13 @@ namespace FileServiceLibrary
 
             using (FileStream fileStream = File.OpenRead(filePath))
             {
-                byteArray = new byte[fileStream.Length];
-                fileStream.Read(byteArray, 0, byteArray.Length);
+                byte bt = byte.Parse("0");
+                byteArray = new byte[fileStream.Length + 1];
+                byteArray[0] = bt;
+                fileStream.Read(byteArray, 1, (int)fileStream.Length);
             }
             byteArrayContent = new ByteArrayContent(byteArray);
-            encodedContent.Add(byteArrayContent);
+            encodedContent.Add(byteArrayContent, "FileName", Path.GetFileName(filePath));
             return encodedContent;
         }
 
@@ -67,11 +69,9 @@ namespace FileServiceLibrary
                 string fileName = Path.GetFileName(filePath);
 
                 using (HttpClient client = new HttpClient())
-                {
-                    
+                {         
                     HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, SERVER_URI);
                     httpRequestMessage.Content = MIMEEncodedContent(filePath);
-                    httpRequestMessage.Headers.Add("FileName", fileName); 
                     
                     HttpResponseMessage httpResponseMessage = await client.SendAsync(httpRequestMessage); 
                     if (httpResponseMessage.IsSuccessStatusCode)
