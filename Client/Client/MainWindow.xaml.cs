@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace ChatClient
 {
@@ -30,7 +29,7 @@ namespace ChatClient
             client.DisconnectClient();
         } 
 
-        private  void ShowTextFileContent(string sendDateTime, string senderName, Message message, bool prvt, bool pblc)
+        private void ShowTextFileContent(string sendDateTime, string senderName, Message message, bool prvt, bool pblc)
         {
             string textContent = "";
             string fileContent = "";
@@ -53,7 +52,7 @@ namespace ChatClient
                     {
                         int fileSize = privateMessage.DictionaryOfSizes[file.Key];
                         fileContent = file.Value + " " + FileSize(fileSize);
-                        int width = fileContent.Length * 6;
+                        int width = fileContent.Length * 7;
                         Button fileMessage = new Button() { Name = "ID" + file.Key.ToString(), Content = fileContent, Width = width };
                         fileMessage.Click += new RoutedEventHandler(DownloadFileButton_Click);
                         messageStackPanel.Children.Add(fileMessage);
@@ -76,7 +75,7 @@ namespace ChatClient
                     {
                         int fileSize = publicMessage.DictionaryOfSizes[file.Key];
                         fileContent = file.Value + " " + FileSize(fileSize);
-                        int width = fileContent.Length * 6;
+                        int width = fileContent.Length * 7;
                         Button fileMessage = new Button() { Name = "ID" + file.Key.ToString(), Content = fileContent, Width = width };
                         fileMessage.Click += new RoutedEventHandler(DownloadFileButton_Click);
                         messageStackPanel.Children.Add(fileMessage);
@@ -348,6 +347,13 @@ namespace ChatClient
             NewPrivateMessagesLabel.Visibility = Visibility.Visible;
             MarkEverythingAsReadLabel.Visibility = Visibility.Visible;
             MarkEverythingAsReadButton.Visibility = Visibility.Visible;
+            MessagesScrollViewer.Visibility = Visibility.Visible;
+            ParentStackPanel.Visibility = Visibility.Visible;
+            FilesSizeValueLabel.Visibility = Visibility.Visible;
+            RemoveFileFromService.Visibility = Visibility.Visible;
+            LoadFileToService.Visibility = Visibility.Visible;
+            FilesSizeLabel.Visibility = Visibility.Visible;
+            LoadedFilesComboBox.Visibility = Visibility.Visible;
         }
 
         private void ConnectButton_Click(object sender, RoutedEventArgs e)

@@ -16,34 +16,33 @@
             <ColumnDefinition Width="185*"/>
             <ColumnDefinition Width="607*"/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer CanContentScroll="True" Grid.Column="1" Margin="0,32,236,61" HorizontalAlignment="Right" Width="316">
-            <StackPanel x:Name="ParentStackPanel" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="316" Grid.Column="1" Height="326"/>
+        <ScrollViewer Name="MessagesScrollViewer"  CanContentScroll="True" Grid.Column="1" Visibility="Hidden" Margin="0,32,236,61" HorizontalAlignment="Right" Width="316">
+            <StackPanel x:Name="ParentStackPanel" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Width="316" Grid.Column="1" Height="326"/>
         </ScrollViewer>
-        <TextBox Height="auto" Visibility="Visible" x:Name="MessageTextBox" Background="Transparent" TextWrapping="Wrap" Margin="55,358,326,34" Grid.Column="1"/>
+        <TextBox Height="auto" Visibility="Hidden" x:Name="MessageTextBox" Background="Transparent" TextWrapping="Wrap" Margin="55,358,326,34" Grid.Column="1"/>
         <Button x:Name="ConnectButton" Content="Connect" HorizontalAlignment="Left" Height="54" VerticalAlignment="Top" Width="256" Click="ConnectButton_Click" Visibility="Visible" Margin="81,242,0,0" Grid.Column="1"/>
         <TextBox Visibility="Visible" x:Name="UsernameTextBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="177" Margin="160,196,0,0" Grid.Column="1"/>
         <Label Visibility="Visible" x:Name="Username" Content="Username:" HorizontalAlignment="Left" Margin="81,193,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-        <ListView x:Name="ParticipantsListView" Visibility="Visible" SelectionChanged="ParticipantsListView_Index" HorizontalAlignment="Left" Height="212" Margin="390,84,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
+        <ListView x:Name="ParticipantsListView" Visibility="Hidden" SelectionChanged="ParticipantsListView_Index" HorizontalAlignment="Left" Height="212" Margin="390,84,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="auto" Header="Participants"/>
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="SendMessageButton" Visibility="Visible" Content="Send" Height="auto" Click="SendMessageButton_Click" Margin="271,358,236,34" Grid.Column="1"/>
-        <GroupBox x:Name="Profile" Visibility="Visible" Header="Profile" HorizontalAlignment="Left" Height="55" Margin="390,22,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
+        <Button x:Name="SendMessageButton" Visibility="Hidden" Content="Send" Height="auto" Click="SendMessageButton_Click" Margin="271,358,236,34" Grid.Column="1"/>
+        <GroupBox x:Name="Profile" Visibility="Hidden" Header="Profile" HorizontalAlignment="Left" Height="55" Margin="390,22,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1">
             <Label Margin="0,0,103,6" Content="Name:"/>
         </GroupBox>
-        <Label x:Name="ClientProfileName" Visibility="Visible" IsEnabled="False" Content="" HorizontalAlignment="Left" Margin="440,40,0,0" VerticalAlignment="Top" Width="103" Grid.Column="1"/>
-        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Visible" HorizontalAlignment="Left" Height="293" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
-        <Label x:Name="NewPrivateMessagesLabel" Visibility="Visible" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Visible" Content="Mark everything as read" HorizontalAlignment="Left" Margin="69,357,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Button x:Name="MarkEverythingAsReadButton" Visibility="Visible" Content="OK" HorizontalAlignment="Left" Margin="38,360,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
-        <ComboBox x:Name="LoadedFilesComboBox" SelectionChanged="LoadedFilesComboBox_SelectionChanged" Grid.Column="1" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164"/>
-        <Label x:Name="FilesSizeLabel" Content="Size:" Grid.Column="1" HorizontalAlignment="Left" Margin="390,328,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="LoadFileToService" Content="Load file" Grid.Column="1" HorizontalAlignment="Left" Margin="390,360,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToService_Click"/>
-        <Button x:Name="RemoveFileFromService" Content="Remove file" Grid.Column="1" HorizontalAlignment="Left" Margin="479,360,0,0" VerticalAlignment="Top" Width="75" Click="RemoveFileFromService_Click"/>
-        <Label x:Name="FilesSizeValueLabel" Content="0,00B" Visibility="Visible" BorderBrush="Transparent" IsEnabled="False" HorizontalAlignment="Left" Margin="429,328,0,0" VerticalAlignment="Top" Grid.Column="1" Width="125"/>
-        <Border BorderBrush="LightGray" Visibility="Hidden" BorderThickness="1"  Grid.Column="1" HorizontalAlignment="Left" Height="326" Margin="55,32,0,0" VerticalAlignment="Top" Width="316"/>
+        <Label x:Name="ClientProfileName" Visibility="Hidden" IsEnabled="False" Content="" HorizontalAlignment="Left" Margin="440,40,0,0" VerticalAlignment="Top" Width="103" Grid.Column="1"/>
+        <TextBox x:Name="NewPrivateMessagesTextBox" Visibility="Hidden" HorizontalAlignment="Left" Height="293" Margin="27,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="185" Grid.ColumnSpan="2"/>
+        <Label x:Name="NewPrivateMessagesLabel" Visibility="Hidden" Content="Unread messages" HorizontalAlignment="Left" Margin="69,36,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="MarkEverythingAsReadLabel" Visibility="Hidden" Content="Mark everything as read" HorizontalAlignment="Left" Margin="69,357,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+        <Button x:Name="MarkEverythingAsReadButton" Visibility="Hidden" Content="OK" HorizontalAlignment="Left" Margin="38,360,0,0" VerticalAlignment="Top" Width="26" Click="MarkEverythingAsReadButton_Click"/>
+        <ComboBox x:Name="LoadedFilesComboBox" Visibility="Hidden" SelectionChanged="LoadedFilesComboBox_SelectionChanged" Grid.Column="1" HorizontalAlignment="Left" Margin="390,301,0,0" VerticalAlignment="Top" Width="164"/>
+        <Label x:Name="FilesSizeLabel" Visibility="Hidden" Content="Size:" Grid.Column="1" HorizontalAlignment="Left" Margin="390,328,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="LoadFileToService" Visibility="Hidden" Content="Load file" Grid.Column="1" HorizontalAlignment="Left" Margin="390,360,0,0" VerticalAlignment="Top" Width="75" Click="LoadFileToService_Click"/>
+        <Button x:Name="RemoveFileFromService" Visibility="Hidden" Content="Remove file" Grid.Column="1" HorizontalAlignment="Left" Margin="479,360,0,0" VerticalAlignment="Top" Width="75" Click="RemoveFileFromService_Click"/>
+        <Label x:Name="FilesSizeValueLabel" Content="0,00B" Visibility="Hidden" BorderBrush="Transparent" IsEnabled="False" HorizontalAlignment="Left" Margin="429,328,0,0" VerticalAlignment="Top" Grid.Column="1" Width="125"/>
     </Grid>
 </Window>

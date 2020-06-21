@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -22,13 +20,16 @@ namespace FileServiceLibrary
         private readonly static string SAVE_FILE_PATH = Directory.GetCurrentDirectory() + "\\File storage\\";
 
         public Dictionary<int, string> DictionaryOfFiles;
-        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".png", ".jpg", ".JPG", ".jpeg", ".pdf", ".rar" };
+        private List<string> ListOfFilesExtensions = new List<string>() { ".txt", ".docx", ".jpg", ".JPG", ".pdf" };
         public int TotalSize = 0;
 
         public FileClient()
         {
             DictionaryOfFiles = new Dictionary<int, string>();
-            FileStorage.SetupStorage(SAVE_FILE_PATH);
+            if (!(Directory.Exists(SAVE_FILE_PATH)))
+            {
+                Directory.CreateDirectory(SAVE_FILE_PATH);
+            }
         }
 
         public bool SizeFits(int fileSize)
@@ -150,6 +151,7 @@ namespace FileServiceLibrary
                 {
                     string fileName = await GetFileName(fileID);
                     string clientFileName = fileName.Substring(9);
+
                     string filePath = SAVE_FILE_PATH + clientFileName;
 
                     byte[] fileContent = await httpResponseMessage.Content.ReadAsByteArrayAsync();
